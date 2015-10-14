@@ -70,6 +70,10 @@
 //System
 #include <assert.h>
 
+#include "ccLog.h"
+#include <QColor>
+#include "CCGeom.h" //CCVector3d defined
+
 // Default 'None' string
 static const QString c_noneString = QString("None");
 
@@ -231,7 +235,12 @@ void ccPropertiesTreeDelegate::fillModel(ccHObject* hObject)
 	}
 	else if (m_currentObject->isA(CC_TYPES::LABEL_2D))
 	{
-		fillWithLabel(ccHObjectCaster::To2DLabel(m_currentObject));
+        fillWithLabel(ccHObjectCaster::To2DLabel(m_currentObject));
+        MarkedPoint *markedPoint = dynamic_cast<MarkedPoint*>(m_currentObject); //若m_currentObject不是MarkedPoint类型（cc2DLabel的子类），则dynamic_cast会返回NULL，此处用来判断其是否MarkedPoint类型
+        if (markedPoint != NULL)
+        {
+            fillWithMarkedPoint(markedPoint);
+        }
 	}
 	else if (m_currentObject->isKindOf(CC_TYPES::VIEWPORT_2D_OBJECT))
 	{
@@ -269,6 +278,9 @@ void ccPropertiesTreeDelegate::fillModel(ccHObject* hObject)
 	{
 		fillWithTransBuffer(static_cast<ccIndexedTransformationBuffer*>(m_currentObject));
 	}
+    else if (m_currentObject->isA(CC_TYPES::CUSTOM_H_OBJECT))
+    {
+    }
 
 	//transformation history
 	if (	m_currentObject->isKindOf(CC_TYPES::POINT_CLOUD)
@@ -936,6 +948,25 @@ template<int N, class ElementType> void ccPropertiesTreeDelegate::fillWithChunke
 
 	//ccChunkedArray objects are 'shareable'
 	fillWithShareable(_obj);
+}
+
+void ccPropertiesTreeDelegate::fillWithMarkedPoint(MarkedPoint* _obj)
+{
+    assert(_obj && m_model);
+
+    addSeparator(QString::fromAscii("标记点"));
+
+    const cc2DLabel::PickedPoint pickedPoint = _obj->getPoint(0);
+    CCVector3d point = pickedPoint.cloud->toGlobal3d(*pickedPoint.cloud->getPoint(pickedPoint.index)); //坐标
+    int precision = 6; //坐标显示精度
+    appendRow(ITEM(QString::fromAscii("坐标")), ITEM(QString("%1,%2,%3").arg(QString::number(point.x,'f',precision)).arg(QString::number(point.y,'f',precision)).arg(QString::number(point.z,'f',precision))));
+
+    appendRow(ITEM(QString::fromAscii("类别")), ITEM(_obj->getMarkedType()->getName()));
+
+    appendRow(ITEM(QString::fromAscii("名称")), ITEM(_obj->getName()));
+
+    QColor color = _obj->getColor();
+    appendRow(ITEM(QString::fromAscii("颜色")), ITEM(QString("%1,%2,%3").arg(color.red()).arg(color.green()).arg(color.blue())));
 }
 
 bool ccPropertiesTreeDelegate::isWideEditor(int itemData) const

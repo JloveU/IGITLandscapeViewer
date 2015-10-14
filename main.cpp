@@ -78,7 +78,7 @@ int main(int argc, char *argv[]){
 		}	
 	    // splash screen
 	   splashStartTime.start();
-	   QPixmap pixmap(QString::fromUtf8("./images/imLogoV2Qt.png"));
+	   QPixmap pixmap(QString::fromUtf8(":/CC/images/imLogoV2Qt.png"));
 	   splash = new QSplashScreen(pixmap,Qt::WindowStaysOnTopHint);
 	   splash->show();
 	   QApplication::processEvents();

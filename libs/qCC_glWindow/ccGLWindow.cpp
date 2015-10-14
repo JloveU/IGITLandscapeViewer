@@ -843,7 +843,7 @@ void ccGLWindow::drawClickableItems(int xStart0, int& yStart)
 
 		//"minus" icon
 		{
-			static const QPixmap c_psi_minusPix("./../images/ccMinus.png");
+			static const QPixmap c_psi_minusPix(":/CC/images/ccMinus.png");
 			ccGLUtils::DisplayTexture2DPosition(bindTexture(c_psi_minusPix),-halfW+xStart,halfH-(yStart+HotZone::iconSize()),HotZone::iconSize(),HotZone::iconSize());
 			m_clickableItems.push_back(ClickableItem(ClickableItem::DECREASE_POINT_SIZE,QRect(xStart,yStart,HotZone::iconSize(),HotZone::iconSize())));
 			xStart += HotZone::iconSize();
@@ -860,7 +860,7 @@ void ccGLWindow::drawClickableItems(int xStart0, int& yStart)
 
 		//"plus" icon
 		{
-			static const QPixmap c_psi_plusPix("./../images/ccPlus.png");
+			static const QPixmap c_psi_plusPix(":/CC/images/ccPlus.png");
 			ccGLUtils::DisplayTexture2DPosition(bindTexture(c_psi_plusPix),-halfW+xStart,halfH-(yStart+HotZone::iconSize()),HotZone::iconSize(),HotZone::iconSize());
 			m_clickableItems.push_back(ClickableItem(ClickableItem::INCREASE_POINT_SIZE,QRect(xStart,yStart,HotZone::iconSize(),HotZone::iconSize())));
 			xStart += HotZone::iconSize();
@@ -3084,7 +3084,7 @@ int ccGLWindow::startCPUBasedPointPicking(int centerX, int centerY, int& subID, 
 								l2 /= l1l2;
 							}
 							GLdouble l3 = 1.0-l1-l2;
-							assert(l3 >= 0);
+							//assert(l3 >= 0); //commented by yuqiang on 2015/9/22
 
 							//now deduce the 3D position
 							CCVector3d P(	l1 * A3D->x + l2 * B3D->x + l3 * C3D->x,
@@ -4530,8 +4530,8 @@ QString ccGLWindow::getShadersPath()
 	path.remove( "MacOS" );
 	return path + "Shaders";
 #else
-	return QApplication::applicationDirPath() + "/shaders";
-	//return QString("./../shaders");
+	//return QApplication::applicationDirPath() + "/shaders";
+	return QString("./../shaders");
 #endif
 }
 

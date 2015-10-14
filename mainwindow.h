@@ -32,6 +32,10 @@
 #include <QThread>
 
 #include "PointCloudGenDlg.h"
+
+#include "ccPointPropertiesDlg.h"
+#include "SetMarkedPointTreeRootNameDlg.h"
+
 class QMdiArea;
 class ccGLWindow;
 class ccHObject;
@@ -130,6 +134,9 @@ public:
 	// load cameras automatically
 	void loadPMVSCameras(QString ResultsDir);
 
+    //! Returns real 'dbRoot' object
+    virtual ccDBRoot* db();
+
 	// plots
 protected slots:
 
@@ -206,13 +213,20 @@ protected slots:
 	virtual void setIsoView1();
 	virtual void setIsoView2();
 
+    //Point picking mechanism
+    void activatePointPickingMode();
+    void deactivatePointPickingMode(bool);
+
+	// set active sub window
+	void setActiveSubWindow(QWidget* window);
+
+    //弹出设置标记点根标签名称对话框
+    void showSetMarkedPointTreeRootNameDlg();
+
 protected:
 
 	//! Connects all QT actions to slots
 	void connectActions();
-
-	// set active sub window
-	void setActiveSubWindow(QWidget* window);
 
 	//设置正式视角
 	void setOrthoView(ccGLWindow *win);
@@ -285,6 +299,17 @@ public:
 	std::vector<ccMDIDialogs> m_mdiDialogs;
 
 	QThread m_thread;
+
+protected:
+
+    //! Point properties mode dialog
+    ccPointPropertiesDlg* m_ppDlg;
+
+    //设置标记点根标签名称对话框
+    SetMarkedPointTreeRootNameDlg *mSetMarkedPointTreeRootNameDlg;
+
+    //上次输入的标记点根标签名称
+    QString mLastMarkedPointTreeRootName;
 
 };
 

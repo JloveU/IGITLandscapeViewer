@@ -21,6 +21,8 @@
 #include "PointCloudGenDlg.h"
 #include "ccCameraParamEditDlg.h"
 #include "ccOverlayDialog.h"
+#include "ccPointPropertiesDlg.h"
+#include "SetMarkedPointTreeRootNameDlg.h"
 
 //Qt Includes
 #include <QtGui>
@@ -63,7 +65,9 @@ MainWindow::MainWindow()
 	:m_ccRoot(0)
     ,m_viewModePopupButton(0)
     ,m_pivotVisibilityPopupButton(0)
-    ,m_cpeDlg(0){
+    ,m_cpeDlg(0)
+    ,m_ppDlg(0)
+    ,mSetMarkedPointTreeRootNameDlg(0){
 	
 	setupUi(this);
 
@@ -169,8 +173,10 @@ void MainWindow::connectActions(){
 	//"Edit" menu
 	connect(actionCreateCameraSensor,			SIGNAL(triggered()),	this,		SLOT(doActionCreateCameraSensor()));
 	connect(actionCreateCameraSensorFromFile,   SIGNAL(triggered()),    this,       SLOT(doActionCreateCameraSensorFromFile()));
-	connect(actionTextureGeneration,         SIGNAL(triggered()),    this,       SLOT(doActionTextureGeneration()));
+	connect(actionTextureGeneration,            SIGNAL(triggered()),    this,       SLOT(doActionTextureGeneration()));
 	
+    //"Tools" menu
+    connect(actionPointPicking,					SIGNAL(triggered()),	this,		SLOT(showSetMarkedPointTreeRootNameDlg()));
 
 	//"Display"  menu
 	connect(actionLockRotationVertAxis,			SIGNAL(triggered()),	this,		SLOT(toggleRotationAboutVertAxis()));
@@ -1449,4 +1455,100 @@ void MainWindow::setIsoView2(){
 	if(win){
 		win->setView(CC_ISO_VIEW_2);
 	}
+}
+
+void MainWindow::activatePointPickingMode()
+{
+    //设置标记点根标签
+    QString markedPointTreeRootName = mSetMarkedPointTreeRootNameDlg->getName();
+    if (markedPointTreeRootName.isEmpty())
+    {
+        QMessageBox::information(this, QString::fromAscii("错误"), QString::fromAscii("输入的标记点根标签名称不能为空，请重新输入！"));
+        mSetMarkedPointTreeRootNameDlg->show();
+        return;
+    }
+    mLastMarkedPointTreeRootName = markedPointTreeRootName;
+
+	ccGLWindow* win = getActiveGLWindow();
+	if (!win)
+		return;
+
+	if (m_ccRoot)
+		m_ccRoot->unselectAllEntities(); //we don't want any entity selected (especially existing labels!)
+
+	if (!m_ppDlg)
+	{
+		m_ppDlg = new ccPointPropertiesDlg(this, m_ccRoot);
+		connect(m_ppDlg, SIGNAL(processFinished(bool)),	this, SLOT(deactivatePointPickingMode(bool)));
+		connect(m_ppDlg, SIGNAL(newLabel(ccHObject*)),	this, SLOT(handleNewLabel(ccHObject*)));
+
+		registerMDIDialog(m_ppDlg,Qt::TopRightCorner);
+	}
+
+	m_ppDlg->linkWith(win);
+
+    m_ppDlg->setMarkedPointTreeRootName(markedPointTreeRootName);
+
+	//freezeUI(true);
+
+	//we disable all other windows
+	disableAllBut(win);
+
+	if (!m_ppDlg->start())
+		deactivatePointPickingMode(false);
+	else
+		updateMDIDialogsPlacement();
+}
+
+void MainWindow::deactivatePointPickingMode(bool state)
+{
+    //if (m_ppDlg)
+    //	m_ppDlg->linkWith(0);
+
+    //we enable all GL windows
+    enableAll();
+
+    freezeUI(false);
+
+    updateUI();
+}
+
+ccDBRoot* MainWindow::db()
+{
+    return m_ccRoot;
+}
+
+void MainWindow::showSetMarkedPointTreeRootNameDlg()
+{
+    //获取当前所有的根标签名称，用以在弹出对话框中显示供选择
+    QStringList dbRootNames;
+    if (m_ccRoot)
+    {
+        if (m_ccRoot->getRootEntity() && m_ccRoot->getRootEntity()->getChildrenNumber() != 0) //if the DB was not empty!
+        {
+            ccHObject *dbRootEntity = m_ccRoot->getRootEntity();
+            int dbRootNum = dbRootEntity->getChildrenNumber();
+            for (int i = 0; i < dbRootNum; i++)
+            {
+                dbRootNames.push_back(dbRootEntity->getChild(i)->getName());
+            }
+        }
+    }
+    else
+    {
+        ccLog::Warning("[MainWindow] 内部错误: 没有相关的 db?!");
+        assert(false);
+        return;
+    }
+
+    //弹出对话框
+    if (!mSetMarkedPointTreeRootNameDlg)
+    {
+        mSetMarkedPointTreeRootNameDlg = new SetMarkedPointTreeRootNameDlg(this);
+    }
+    mSetMarkedPointTreeRootNameDlg->setItems(dbRootNames);
+    mSetMarkedPointTreeRootNameDlg->setName(mLastMarkedPointTreeRootName);
+    disconnect(mSetMarkedPointTreeRootNameDlg, SIGNAL(accepted()), 0, 0);
+    connect(mSetMarkedPointTreeRootNameDlg, SIGNAL(accepted()), this, SLOT(activatePointPickingMode()));
+    mSetMarkedPointTreeRootNameDlg->show();
 }

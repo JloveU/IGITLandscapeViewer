@@ -47,6 +47,8 @@ class QStandardItemModel;
 class QStandardItem;
 class QAbstractItemView;
 
+#include "MarkedPoint.h"
+
 //! GUI properties list dialog element
 class ccPropertiesTreeDelegate : public QStyledItemDelegate
 {
@@ -178,6 +180,7 @@ protected:
 	void fillWithMetaData(ccObject*);
 	void fillWithShifted(ccShiftedObject*);
 	template<int N, class ElementType> void fillWithChunkedArray(ccChunkedArray<N,ElementType>*);
+    void fillWithMarkedPoint(MarkedPoint*);
 
 	//! Returns whether the editor is wide (i.e. spans on two columns) or not
 	bool isWideEditor(int itemData) const;

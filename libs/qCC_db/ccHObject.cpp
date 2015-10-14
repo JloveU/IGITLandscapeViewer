@@ -417,6 +417,22 @@ ccHObject*  ccHObject::find(QString objname){
 
 }
 
+//=============================================findDirectChild===================================================//
+ccHObject* ccHObject::findDirectChild(QString objname)
+{
+    ccHObject *match = NULL;
+    unsigned childrenNumber = getChildrenNumber();
+    for(unsigned i = 0; i < childrenNumber; i++)
+    {
+        match = getChild(i);
+        if(match->getName() == objname)
+        {
+            return match;
+        }
+    }
+    return NULL;
+}
+
 //=======================================filterChildren=================================================================//
 unsigned ccHObject::filterChildren(	Container& filteredChildren,
 									bool recursive/*=false*/,

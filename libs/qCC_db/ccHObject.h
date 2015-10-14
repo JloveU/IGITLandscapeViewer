@@ -165,6 +165,12 @@ public: //children management
 		**/
 	ccHObject* find(QString objname);
 
+	//! Finds a direct child in this object(added by yuqiang on 2015/9/26)
+	/** \param objname child object name
+	    return child (or NULL if not found)
+		**/
+	ccHObject* findDirectChild(QString objname);
+
 	//! standard ccHObject container (for children, etc.)
 	// 类型定义 物体容器
 	typedef std::vector<ccHObject*> Container;

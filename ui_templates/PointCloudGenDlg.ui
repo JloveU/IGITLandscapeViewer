@@ -32,7 +32,7 @@
        </property>
        <property name="icon">
         <iconset resource="../mainwindow.qrc">
-         <normaloff>:/MainWindow/images/ccPlus.png</normaloff>:/MainWindow/images/ccPlus.png</iconset>
+         <normaloff>:/CC/images/ccPlus.png</normaloff>:/CC/images/ccPlus.png</iconset>
        </property>
       </widget>
      </item>
@@ -43,7 +43,7 @@
        </property>
        <property name="icon">
         <iconset resource="../mainwindow.qrc">
-         <normaloff>:/MainWindow/images/dbCloudSymbol.png</normaloff>:/MainWindow/images/dbCloudSymbol.png</iconset>
+         <normaloff>:/CC/images/dbCloudSymbol.png</normaloff>:/CC/images/dbCloudSymbol.png</iconset>
        </property>
       </widget>
      </item>

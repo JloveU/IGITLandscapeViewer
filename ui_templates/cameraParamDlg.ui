@@ -226,7 +226,7 @@
        </property>
        <property name="icon">
         <iconset resource="../mainwindow.qrc">
-         <normaloff>:/MainWindow/images/smallBasket.png</normaloff>:/MainWindow/images/smallBasket.png</iconset>
+         <normaloff>:/CC/images/smallBasket.png</normaloff>:/CC/images/smallBasket.png</iconset>
        </property>
       </widget>
      </item>
@@ -261,7 +261,7 @@
           </property>
           <property name="icon">
            <iconset resource="../mainwindow.qrc">
-            <normaloff>:/MainWindow/images/smallRevert.png</normaloff>:/MainWindow/images/smallRevert.png</iconset>
+            <normaloff>:/CC/images/smallRevert.png</normaloff>:/CC/images/smallRevert.png</iconset>
           </property>
          </widget>
         </item>
@@ -281,7 +281,7 @@
           </property>
           <property name="icon">
            <iconset resource="../mainwindow.qrc">
-            <normaloff>:/MainWindow/images/ccViewZpos.png</normaloff>:/MainWindow/images/ccViewZpos.png</iconset>
+            <normaloff>:/CC/images/ccViewZpos.png</normaloff>:/CC/images/ccViewZpos.png</iconset>
           </property>
          </widget>
         </item>
@@ -301,7 +301,7 @@
           </property>
           <property name="icon">
            <iconset resource="../mainwindow.qrc">
-            <normaloff>:/MainWindow/images/ccViewZneg.png</normaloff>:/MainWindow/images/ccViewZneg.png</iconset>
+            <normaloff>:/CC/images/ccViewZneg.png</normaloff>:/CC/images/ccViewZneg.png</iconset>
           </property>
          </widget>
         </item>
@@ -321,7 +321,7 @@
           </property>
           <property name="icon">
            <iconset resource="../mainwindow.qrc">
-            <normaloff>:/MainWindow/images/ccViewXpos.png</normaloff>:/MainWindow/images/ccViewXpos.png</iconset>
+            <normaloff>:/CC/images/ccViewXpos.png</normaloff>:/CC/images/ccViewXpos.png</iconset>
           </property>
          </widget>
         </item>
@@ -341,7 +341,7 @@
           </property>
           <property name="icon">
            <iconset resource="../mainwindow.qrc">
-            <normaloff>:/MainWindow/images/ccViewXneg.png</normaloff>:/MainWindow/images/ccViewXneg.png</iconset>
+            <normaloff>:/CC/images/ccViewXneg.png</normaloff>:/CC/images/ccViewXneg.png</iconset>
           </property>
          </widget>
         </item>
@@ -361,7 +361,7 @@
           </property>
           <property name="icon">
            <iconset resource="../mainwindow.qrc">
-            <normaloff>:/MainWindow/images/ccViewYpos.png</normaloff>:/MainWindow/images/ccViewYpos.png</iconset>
+            <normaloff>:/CC/images/ccViewYpos.png</normaloff>:/CC/images/ccViewYpos.png</iconset>
           </property>
          </widget>
         </item>
@@ -381,7 +381,7 @@
           </property>
           <property name="icon">
            <iconset resource="../mainwindow.qrc">
-            <normaloff>:/MainWindow/images/ccViewYneg.png</normaloff>:/MainWindow/images/ccViewYneg.png</iconset>
+            <normaloff>:/CC/images/ccViewYneg.png</normaloff>:/CC/images/ccViewYneg.png</iconset>
           </property>
          </widget>
         </item>
@@ -401,7 +401,7 @@
           </property>
           <property name="icon">
            <iconset resource="../mainwindow.qrc">
-            <normaloff>:/MainWindow/images/ccViewIso1.png</normaloff>:/MainWindow/images/ccViewIso1.png</iconset>
+            <normaloff>:/CC/images/ccViewIso1.png</normaloff>:/CC/images/ccViewIso1.png</iconset>
           </property>
          </widget>
         </item>
@@ -421,7 +421,7 @@
           </property>
           <property name="icon">
            <iconset resource="../mainwindow.qrc">
-            <normaloff>:/MainWindow/images/ccViewIso2.png</normaloff>:/MainWindow/images/ccViewIso2.png</iconset>
+            <normaloff>:/CC/images/ccViewIso2.png</normaloff>:/CC/images/ccViewIso2.png</iconset>
           </property>
          </widget>
         </item>
@@ -492,7 +492,7 @@
            </property>
            <property name="icon">
             <iconset resource="../mainwindow.qrc">
-             <normaloff>:/MainWindow/images/ccPointPicking.png</normaloff>:/MainWindow/images/ccPointPicking.png</iconset>
+             <normaloff>:/CC/images/ccPointPicking.png</normaloff>:/CC/images/ccPointPicking.png</iconset>
            </property>
           </widget>
          </item>
