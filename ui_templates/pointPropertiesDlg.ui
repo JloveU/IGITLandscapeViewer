@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>201</width>
+    <width>170</width>
     <height>26</height>
    </rect>
   </property>
@@ -17,6 +17,108 @@
    <property name="margin">
     <number>2</number>
    </property>
+   <item>
+    <widget class="QToolButton" name="markPointButton">
+     <property name="toolTip">
+      <string comment="Mark point">Select one point and mark it with some information</string>
+     </property>
+     <property name="statusTip">
+      <string comment="Mark point">Select one point and mark it with some information</string>
+     </property>
+     <property name="text">
+      <string>...</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../mainwindow.qrc">
+       <normaloff>:/CC/images/smallMarkPoint.png</normaloff>:/CC/images/smallMarkPoint.png</iconset>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QToolButton" name="markLineButton">
+     <property name="toolTip">
+      <string comment="Mark line">Select a series of points through a line and mark the line with some information</string>
+     </property>
+     <property name="statusTip">
+      <string comment="Mark line">Select a series of points through a line and mark the line with some information</string>
+     </property>
+     <property name="text">
+      <string>...</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../mainwindow.qrc">
+       <normaloff>:/CC/images/smallMarkLine.png</normaloff>:/CC/images/smallMarkLine.png</iconset>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QToolButton" name="markAreaButton">
+     <property name="toolTip">
+      <string comment="Mark area">Select a series of points through a circle and mark the area in the circle with some information</string>
+     </property>
+     <property name="statusTip">
+      <string comment="Mark area">Select a series of points through a circle and mark the area in the circle with some information</string>
+     </property>
+     <property name="text">
+      <string>...</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../mainwindow.qrc">
+       <normaloff>:/CC/images/smallMarkArea.png</normaloff>:/CC/images/smallMarkArea.png</iconset>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QToolButton" name="markUndoButton">
+     <property name="toolTip">
+      <string comment="Mark undo">Undo mark operation</string>
+     </property>
+     <property name="statusTip">
+      <string comment="Mark undo">Undo mark operation</string>
+     </property>
+     <property name="text">
+      <string>...</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../mainwindow.qrc">
+       <normaloff>:/CC/images/smallMarkUndo.png</normaloff>:/CC/images/smallMarkUndo.png</iconset>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QToolButton" name="markRedoButton">
+     <property name="toolTip">
+      <string comment="Mark redo">Redo mark operation</string>
+     </property>
+     <property name="statusTip">
+      <string comment="Mark redo">Redo mark operation</string>
+     </property>
+     <property name="text">
+      <string>...</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../mainwindow.qrc">
+       <normaloff>:/CC/images/smallMarkRedo.png</normaloff>:/CC/images/smallMarkRedo.png</iconset>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QToolButton" name="markDoneButton">
+     <property name="toolTip">
+      <string comment="Mark done">Finish mark operation of a line or an area</string>
+     </property>
+     <property name="statusTip">
+      <string comment="Mark done">Finish mark operation of a line or an area</string>
+     </property>
+     <property name="text">
+      <string>...</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../mainwindow.qrc">
+       <normaloff>:/CC/images/smallMarkDone.png</normaloff>:/CC/images/smallMarkDone.png</iconset>
+     </property>
+    </widget>
+   </item>
    <item>
     <widget class="QToolButton" name="pointPropertiesButton">
      <property name="toolTip">

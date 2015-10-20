@@ -39,23 +39,33 @@
 
 #include "ccDBRoot.h"
 
-#include "MarkedPoint.h"
-#include "SetMarkedPointPropertyDlg.h"
 #include <QMessageBox>
+#include <QProgressDialog>
+#include "ccProgressDialog.h"
+
+#include "MarkedObject.h"
 
 ccPointPropertiesDlg::ccPointPropertiesDlg(QWidget* parent, ccDBRoot *ccRoot)
 	: ccPointPickingGenericInterface(parent)
 	, Ui::PointPropertiesDlg()
 	, m_pickingMode(POINT_INFO)
     , m_ccRoot(ccRoot)
-    , mMarkedPointTreeRoot(0)
-    , mSetMarkedPointPropertyDlg(0)
-    , mCurrentMarkedPoint(0)
-    , mLastMarkedPoint(0)
+    , mMarkedPointTreeRoot(NULL)
+    , mSetMarkedObjectPropertyDlg(NULL)
+    , mCurrentMarkedPoint(NULL)
+    , mCurrentMarkedLine(NULL)
+    , mLastMarkedObject(NULL)
+    , mShortestPathComputer(NULL)
 {
 	setupUi(this);
 	setWindowFlags(Qt::FramelessWindowHint |Qt::Tool);
 
+    connect(markPointButton,		    SIGNAL(clicked()), this, SLOT(onActivatePointMarking()));
+    connect(markLineButton,		        SIGNAL(clicked()), this, SLOT(onActivateLineMarking()));
+    connect(markAreaButton,	  	        SIGNAL(clicked()), this, SLOT(onActivateAreaMarking()));
+    connect(markUndoButton,	  	        SIGNAL(clicked()), this, SLOT(onMarkUndo()));
+    connect(markRedoButton,	  	        SIGNAL(clicked()), this, SLOT(onMarkRedo()));
+    connect(markDoneButton,	  	        SIGNAL(clicked()), this, SLOT(onMarkDone()));
 	connect(closeButton,				SIGNAL(clicked()), this, SLOT(onClose()));
 	connect(pointPropertiesButton,		SIGNAL(clicked()), this, SLOT(activatePointPropertiesDisplay()));
 	connect(pointPointDistanceButton,	SIGNAL(clicked()), this, SLOT(activateDistanceDisplay()));
@@ -72,6 +82,14 @@ ccPointPropertiesDlg::ccPointPropertiesDlg(QWidget* parent, ccDBRoot *ccRoot)
 	m_rect2DLabel = new cc2DViewportLabel();
 	m_rect2DLabel->setVisible(false);	//=invalid
 	m_rect2DLabel->setSelected(true);	//=closed
+
+    //隐藏不使用的按钮
+    pointPropertiesButton->setVisible(false);
+    pointPointDistanceButton->setVisible(false);
+    pointsAngleButton->setVisible(false);
+    rectZoneToolButton->setVisible(false);
+    saveLabelButton->setVisible(false);
+    razButton->setVisible(false);
 }
 
 ccPointPropertiesDlg::~ccPointPropertiesDlg()
@@ -84,9 +102,9 @@ ccPointPropertiesDlg::~ccPointPropertiesDlg()
 		delete m_rect2DLabel;
 	m_rect2DLabel = 0;
 
-    if (mSetMarkedPointPropertyDlg)
-        delete mSetMarkedPointPropertyDlg;
-    mSetMarkedPointPropertyDlg = 0;
+    if (mSetMarkedObjectPropertyDlg)
+        delete mSetMarkedObjectPropertyDlg;
+    mSetMarkedObjectPropertyDlg = 0;
 }
 
 bool ccPointPropertiesDlg::linkWith(ccGLWindow* win)
@@ -128,7 +146,7 @@ bool ccPointPropertiesDlg::linkWith(ccGLWindow* win)
 
 bool ccPointPropertiesDlg::start()
 {
-	activatePointPropertiesDisplay();
+	onActivatePointMarking();
 
 	return ccPointPickingGenericInterface::start();
 }
@@ -149,13 +167,122 @@ void ccPointPropertiesDlg::stop(bool state)
 
 void ccPointPropertiesDlg::onClose()
 {
-    //将当前标记点的2D标签隐藏
+    onCancelLineMarking();
+
+    //将当前标记的2D标签隐藏
     if (mCurrentMarkedPoint)
     {
         mCurrentMarkedPoint->setDisplayedIn2D(false);
     }
+    if (mCurrentMarkedLine)
+    {
+        mCurrentMarkedLine->setDisplayedIn2D(false);
+    }
 
 	stop(false);
+}
+
+void ccPointPropertiesDlg::onActivatePointMarking()
+{
+    onCancelLineMarking();
+
+    m_pickingMode = MARK_POINT;
+    markPointButton->setDown(true);
+    markLineButton->setDown(false);
+    markAreaButton->setDown(false);
+
+    if (m_associatedWin)
+    {
+        m_associatedWin->setInteractionMode(ccGLWindow::TRANSFORM_CAMERA);
+        m_associatedWin->updateGL();
+    }
+
+    mCurrentMarkedPoint = new MarkedPoint();
+}
+
+void ccPointPropertiesDlg::onActivateLineMarking()
+{
+    m_pickingMode = MARK_LINE;
+    markPointButton->setDown(false);
+    markLineButton->setDown(true);
+    markAreaButton->setDown(false);
+
+    if (m_associatedWin)
+    {
+        m_associatedWin->setInteractionMode(ccGLWindow::TRANSFORM_CAMERA);
+        m_associatedWin->updateGL();
+    }
+
+    mCurrentMarkedLine = new MarkedLine();
+}
+
+void ccPointPropertiesDlg::onActivateAreaMarking()
+{
+    onCancelLineMarking();
+
+    m_pickingMode = MARK_AREA;
+    markPointButton->setDown(false);
+    markLineButton->setDown(false);
+    markAreaButton->setDown(true);
+
+    if (m_associatedWin)
+    {
+        m_associatedWin->setInteractionMode(ccGLWindow::TRANSFORM_CAMERA);
+        m_associatedWin->updateGL();
+    }
+}
+
+void ccPointPropertiesDlg::onMarkUndo()
+{
+    switch(m_pickingMode)
+    {
+    case MARK_LINE:
+        assert(mCurrentMarkedLine);
+        mCurrentMarkedLine->undo();
+        if (m_associatedWin)
+        {
+            m_associatedWin->redraw();
+        }
+        break;
+    case MARK_AREA:
+        //TODO
+        break;
+    }
+}
+
+void ccPointPropertiesDlg::onMarkRedo()
+{
+    switch(m_pickingMode)
+    {
+    case MARK_LINE:
+        assert(mCurrentMarkedLine);
+        mCurrentMarkedLine->redo();
+        if (m_associatedWin)
+        {
+            m_associatedWin->redraw();
+        }
+        break;
+    case MARK_AREA:
+        //TODO
+        break;
+    }
+}
+
+void ccPointPropertiesDlg::onCancelLineMarking()
+{
+    if (!mCurrentMarkedLine)
+    {
+        return;
+    }
+
+    if (m_associatedWin)
+    {
+        //取消显示该MarkedLine
+        m_associatedWin->removeFromOwnDB(mCurrentMarkedLine);
+        m_associatedWin->redraw();
+    }
+
+    mCurrentMarkedLine->clear();
 }
 
 void ccPointPropertiesDlg::activatePointPropertiesDisplay()
@@ -164,7 +291,7 @@ void ccPointPropertiesDlg::activatePointPropertiesDisplay()
 		m_associatedWin->setInteractionMode(ccGLWindow::TRANSFORM_CAMERA);
 
 	m_pickingMode = POINT_INFO;
-	pointPropertiesButton->setDown(true);
+    pointPropertiesButton->setDown(true);
 	pointPointDistanceButton->setDown(false);
 	pointsAngleButton->setDown(false);
 	rectZoneToolButton->setDown(false);
@@ -406,7 +533,7 @@ void ccPointPropertiesDlg::processPickedTriangle(ccMesh* mesh, unsigned triangle
 
     CCLib::TriangleSummitsIndexes* summitsIndexes = mesh->getTriangleIndexes(triangleIndex);
 
-    ccPointCloud* cloud = static_cast<ccPointCloud*>(mesh->getAssociatedCloud());
+    ccGenericPointCloud* cloud = mesh->getAssociatedCloud();
     unsigned pointIndex = summitsIndexes->i1;
     if (!cloud->getPoint(pointIndex))
     {
@@ -428,26 +555,55 @@ void ccPointPropertiesDlg::processPickedTriangle(ccMesh* mesh, unsigned triangle
     //    }
     //}
 
-    mLastMarkedPoint = mCurrentMarkedPoint;
-    mCurrentMarkedPoint = new MarkedPoint("Point1", cloud, pointIndex);
-    mCurrentMarkedPoint->setSelected(true);
-    mCurrentMarkedPoint->setVisible(true);
-    if (m_associatedWin)
+    if (!mShortestPathComputer)
     {
-        mCurrentMarkedPoint->setPosition((float)(x+20)/(float)m_associatedWin->width(),(float)(y+20)/(float)m_associatedWin->height());
+        mShortestPathComputer = new ShortestPathComputer();
+        mShortestPathComputer->init(mesh, parentWidget());
+    }
+    else
+    {
+        if(mesh != mShortestPathComputer->getAssociatedMesh()) //添加的所有点必须属于同一个mesh
+        {
+            mShortestPathComputer->init(mesh, parentWidget());
+        }
     }
 
-    //弹出设置标记点属性对话框
-    if (!mSetMarkedPointPropertyDlg)
+    switch(m_pickingMode)
     {
-        mSetMarkedPointPropertyDlg = new SetMarkedPointPropertyDlg(parentWidget());
-        connect(mSetMarkedPointPropertyDlg, SIGNAL(committed(const QString &, const QString &, const QColor &)), this, SLOT(addMarkedPointToDB(const QString &, const QString &, const QColor &)));
+    case MARK_POINT:
+        assert(mCurrentMarkedPoint);
+        mCurrentMarkedPoint->setPoint(cloud, pointIndex);
+        if (m_associatedWin)
+        {
+            mCurrentMarkedPoint->setPosition((float)(x+20)/(float)m_associatedWin->width(),(float)(y+20)/(float)m_associatedWin->height());
+        }
+        onMarkDone();
+        break;
+    case MARK_LINE:
+        assert(mCurrentMarkedLine);
+        mCurrentMarkedLine->setShortestPathComputer(mShortestPathComputer);
+        mCurrentMarkedLine->addPoint(mesh, pointIndex);
+        if (m_associatedWin)
+        {
+            if (mCurrentMarkedLine->size() == 1)
+            {
+                mCurrentMarkedLine->setPosition((float)(x+20)/(float)m_associatedWin->width(),(float)(y+20)/(float)m_associatedWin->height());
+                m_associatedWin->addToOwnDB(mCurrentMarkedLine);
+            }
+            //实时显示该MarkedLine
+            m_associatedWin->redraw();
+        }
+        break;
+    case MARK_AREA:
+        //TODO
+        break;
+    default:
+        ccLog::Error("[Mark operation] Mark mode invalid!");
+        return;
     }
-    mSetMarkedPointPropertyDlg->setMarkedPointTreeRoot(mMarkedPointTreeRoot);
-    mSetMarkedPointPropertyDlg->show();
 }
 
-void ccPointPropertiesDlg::addMarkedPointToDB(const QString &markedTypeName, const QString &markedPointName, const QColor &markedPointColor)
+void ccPointPropertiesDlg::addMarkedObjectToDB(const QString &markedTypeName, const QString &markedObjectName, const QColor &markedObjectColor)
 {
     assert(mMarkedPointTreeRoot);
 
@@ -461,35 +617,54 @@ void ccPointPropertiesDlg::addMarkedPointToDB(const QString &markedTypeName, con
         mMarkedPointTreeRoot->addChild(markedType);
         m_ccRoot->addElement(markedType);
     }
-    mCurrentMarkedPoint->setMarkedType(markedType);
+
+    //将之前的标记的2D标签隐藏
+    if (mLastMarkedObject)
+    {
+        mLastMarkedObject->setSelected(false);
+    }
+
+    MarkedObject *currentMarkedObject = NULL;
+    switch(m_pickingMode)
+    {
+    case MARK_POINT:
+        currentMarkedObject = mCurrentMarkedPoint;
+        //重新生成MarkedObject
+        mCurrentMarkedPoint = new MarkedPoint();
+        break;
+    case MARK_LINE:
+        currentMarkedObject = mCurrentMarkedLine;
+        //重新生成MarkedObject
+        mCurrentMarkedLine = new MarkedLine();
+        break;
+    case MARK_AREA:
+        //TODO
+        break;
+    default:
+        ccLog::Error("[Add mark object to db] Mark mode invalid!");
+        return;
+    }
+    mLastMarkedObject = currentMarkedObject;
+
+    currentMarkedObject->setMarkedType(markedType);
     mLastMarkedTypeName = markedTypeName;
 
-    mCurrentMarkedPoint->setName(markedPointName);
+    currentMarkedObject->setName(markedObjectName);
 
-    mCurrentMarkedPoint->setColor(markedPointColor);
+    currentMarkedObject->setColor(markedObjectColor);
 
     //output info to Console
-    QStringList body = mCurrentMarkedPoint->getLabelContent(ccGui::Parameters().displayedNumPrecision);
-    ccLog::Print(QString("[Picked] ") + mCurrentMarkedPoint->getName());
-    for (int i = 0; i < body.size(); ++i)
-    {
-        ccLog::Print(QString("[Picked]\t- ") + body[i]);
-    }
+    ccLog::Print(QString("[Marked] ") + currentMarkedObject->getName());
 
     //添加到数据库并显示
-    markedType->addChild(mCurrentMarkedPoint);
-    m_ccRoot->addElement(mCurrentMarkedPoint);
-
-    //将上一个标记点的2D标签隐藏
-    if (mLastMarkedPoint)
-    {
-        mLastMarkedPoint->setDisplayedIn2D(false);
-    }
+    markedType->addChild(currentMarkedObject);
+    m_ccRoot->addElement(currentMarkedObject);
 
     //添加并更新显示
     if (m_associatedWin)
     {
-        m_associatedWin->addToOwnDB(mCurrentMarkedPoint);
+        m_associatedWin->removeFromOwnDB(currentMarkedObject); //可能之前add过该object
+        m_associatedWin->addToOwnDB(currentMarkedObject);
         m_associatedWin->redraw();
     }
 }
@@ -524,4 +699,16 @@ void ccPointPropertiesDlg::ensureMarkedPointTreeRootExist()
         mMarkedPointTreeRoot = new ccHObject(mMarkedPointTreeRootName);
         m_ccRoot->addElement(mMarkedPointTreeRoot);
     }
+}
+
+void ccPointPropertiesDlg::onMarkDone()
+{
+    //弹出设置标记属性对话框
+    if (!mSetMarkedObjectPropertyDlg)
+    {
+        mSetMarkedObjectPropertyDlg = new SetMarkedObjectPropertyDlg(parentWidget());
+        connect(mSetMarkedObjectPropertyDlg, SIGNAL(committed(const QString &, const QString &, const QColor &)), this, SLOT(addMarkedObjectToDB(const QString &, const QString &, const QColor &)));
+    }
+    mSetMarkedObjectPropertyDlg->setMarkedObjectTreeRoot(mMarkedPointTreeRoot);
+    mSetMarkedObjectPropertyDlg->show();
 }

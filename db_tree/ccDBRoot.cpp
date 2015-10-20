@@ -53,7 +53,7 @@
 #include <assert.h>
 #include <algorithm>
 #include <string.h>
-#include "MarkedPoint.h"
+#include "MarkedObject.h"
 
 //Minimum width of the left column of the properties tree view
 static const int c_propViewLeftColumnWidth = 115;
@@ -427,8 +427,8 @@ QVariant ccDBRoot::data(const QModelIndex &index, int role) const
         {
             //modified by yuqiang on 2015/9/24
 			//baseName = QString("2D label: ")+baseName;
-            const MarkedPoint *markedPoint = dynamic_cast<MarkedPoint*>(const_cast<ccHObject*>(item)); //若m_currentObject不是MarkedPoint类型（cc2DLabel的子类），则dynamic_cast会返回NULL，此处用来判断其是否MarkedPoint类型
-            if (markedPoint == NULL) //如果是MarkedPoint类型，则不在名称前面添加“2D label”前缀
+            const MarkedObject *markedObject = dynamic_cast<MarkedObject*>(const_cast<ccHObject*>(item)); //若m_currentObject不是MarkedObject类型（cc2DLabel的子类），则dynamic_cast会返回NULL，此处用来判断其是否MarkedObject类型
+            if (markedObject == NULL) //如果是MarkedObject类型，则不在名称前面添加“2D label”前缀
             {
                 baseName = QString("2D label: ") + baseName;
             }

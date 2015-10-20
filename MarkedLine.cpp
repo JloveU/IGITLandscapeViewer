@@ -1,39 +1,100 @@
-#include "MarkedPoint.h"
+#include "MarkedLine.h"
 #include "ccSphere.h"
 #include "ccGenericGLDisplay.h"
 
-MarkedPoint::MarkedPoint()
+MarkedLine::MarkedLine()
     : MarkedObject()
+    , mMarkedName(ccObject::getName())
+    , mShortestPathComputer(NULL)
+    , mLineLength(0.0)
+    , mCurrentPositionInHistory(-1)
 {
 }
 
-MarkedPoint::MarkedPoint(QString name)
+MarkedLine::MarkedLine(QString name)
     : MarkedObject(name)
+    , mMarkedName(name)
+    , mShortestPathComputer(NULL)
+    , mLineLength(0.0)
+    , mCurrentPositionInHistory(-1)
 {
 }
 
-void MarkedPoint::setPoint(ccGenericPointCloud* cloud, unsigned pointIndex)
+bool MarkedLine::addPoint(ccMesh* mesh, unsigned pointIndex)
+{
+    assert(mesh);
+    assert(mShortestPathComputer);
+    assert(mShortestPathComputer->getAssociatedMesh() == mesh);
+
+    ccGenericPointCloud *cloud = mesh->getAssociatedCloud();
+    assert(cloud && cloud->size() > pointIndex);
+
+    //计算最短路径
+    QList<unsigned> path;
+    float pathLength;
+    if (size() != 0)
+    {
+        assert(cloud == getPoint(size() - 1).cloud);
+        if (pointIndex == getPoint(size() - 1).index) //如果本次要添加的点和上次添加的点相同，则不做任何操作
+        {
+            return true;
+        }
+        else
+        {
+            path = mShortestPathComputer->getShortestPathVertices(getPoint(size() - 1).index, pointIndex, &pathLength);
+            mLineLength += pathLength;
+        }
+    }
+    const unsigned pathSize = path.size();
+
+    //历史纪录
+    if (!mHistory.isEmpty() && mCurrentPositionInHistory < mHistory.size() - 1) //舍弃历史纪录中被撤销的操作
+    {
+        mHistory.remove(mCurrentPositionInHistory + 1, mHistory.size() - mCurrentPositionInHistory- 1);
+    }
+    if (!mHistory.isEmpty())
+    {
+        mHistory.insert(mHistory.end(), mHistory.back()); //复制最后一个状态
+    }
+    else
+    {
+        mHistory.resize(1);
+    }
+    for (int i = 0; i < pathSize; i++) //在复制得到的状态上增加本次要添加的点
+    {
+        mHistory.back().points.push_back(PickedPoint(cloud, path.at(i)));
+    }
+    mHistory.back().points.push_back(PickedPoint(cloud, pointIndex));
+    mHistory.back().lineLength += pathLength;
+    mCurrentPositionInHistory = mHistory.size() - 1;
+
+    //更新m_points和mLineLength
+    m_points = mHistory.back().points;
+    mLineLength = mHistory.back().lineLength;
+
+    updateName();
+
+    //we want to be notified whenever an associated cloud is deleted (in which case
+    //we'll automatically clear the label)
+    cloud->addDependency(this,DP_NOTIFY_OTHER_ON_DELETE);
+    //we must also warn the cloud whenever we delete this label
+    //addDependency(cloud,DP_NOTIFY_OTHER_ON_DELETE); //DGM: automatically done by the previous call to addDependency!
+
+    return true;
+}
+
+void MarkedLine::clear()
 {
     m_points.clear();
-
-    cc2DLabel::addPoint(cloud, pointIndex);
-}
-
-bool MarkedPoint::addPoint(ccGenericPointCloud* cloud, unsigned pointIndex)
-{
-    //forbid to add point
-    assert(false);
-    return false;
 }
 
 //copied from cc2DLabel.cpp
 //unit point marker
 static QSharedPointer<ccSphere> c_unitPointMarker(0);
 
-void MarkedPoint::drawMeOnly3D(CC_DRAW_CONTEXT& context)
+void MarkedLine::drawMeOnly3D(CC_DRAW_CONTEXT& context)
 {
     assert(!m_points.empty());
-    assert(m_points.size() == 1);
 
 	//standard case: list names pushing
 	bool pushName = MACRO_DrawEntityNames(context);
@@ -45,10 +106,29 @@ void MarkedPoint::drawMeOnly3D(CC_DRAW_CONTEXT& context)
 		glPushName(getUniqueIDForDisplay());
 	}
 
-	const float c_sizeFactor = 4.0f;
+    ////画控制点之间的连线（直线）
+	const float c_sizeFactor = 10.0f;
 	bool loop = false;
+    size_t count = m_points.size();
+    //segment width
+    glPushAttrib(GL_LINE_BIT);
+    glLineWidth(c_sizeFactor);
+    //we draw the segments
+    ccGL::Color3v(ccColor::Rgba(mColor.red(), mColor.green(), mColor.blue(), mColor.alpha()).rgba);
+    glBegin(GL_LINES);
+    for (unsigned i=0; i<count; i++)
+    {
+        if (i+1<count || loop)
+        {
+            ccGL::Vertex3v(m_points[i].cloud->getPoint(m_points[i].index)->u);
+            ccGL::Vertex3v(m_points[(i+1)%count].cloud->getPoint(m_points[(i+1)%count].index)->u);
+        }
+    }
+    glEnd();
+    glPopAttrib();
 
-	//display point marker as spheres
+    //显示小球标记
+    //display point marker as spheres
 	{
 		if (!c_unitPointMarker)
 		{
@@ -66,13 +146,16 @@ void MarkedPoint::drawMeOnly3D(CC_DRAW_CONTEXT& context)
         //始终显示同一颜色，不管是否选中状态
         c_unitPointMarker->setTempColor(ccColor::Rgb(mColor.red(), mColor.green(), mColor.blue()));
 
-        glMatrixMode(GL_MODELVIEW);
-        glPushMatrix();
-        const CCVector3* P = m_points[0].cloud->getPoint(m_points[0].index);
-        ccGL::Translate(P->x,P->y,P->z);
-        glScalef(context.labelMarkerSize,context.labelMarkerSize,context.labelMarkerSize);
-        c_unitPointMarker->draw(markerContext);
-        glPopMatrix();
+        for (unsigned i = 0; i < count; i += (count == 1 ? 1 : count - 1)) //只显示首尾端点处的小球
+        {
+            glMatrixMode(GL_MODELVIEW);
+            glPushMatrix();
+            const CCVector3* P = m_points[i].cloud->getPoint(m_points[i].index);
+            ccGL::Translate(P->x,P->y,P->z);
+            glScalef(context.labelMarkerSize,context.labelMarkerSize,context.labelMarkerSize);
+            c_unitPointMarker->draw(markerContext);
+            glPopMatrix();
+        }
 	}
 
 	if (m_dispIn3D && !pushName) //no need to display label in point picking mode
@@ -85,15 +168,18 @@ void MarkedPoint::drawMeOnly3D(CC_DRAW_CONTEXT& context)
 		//draw their name
 		glPushAttrib(GL_DEPTH_BUFFER_BIT);
 		glDisable(GL_DEPTH_TEST);
-		const CCVector3* P = m_points[0].cloud->getPoint(m_points[0].index);
-		QString title;
-        title = getName(); //for single-point labels we prefer the name
-		context._win->display3DLabel(	title,
-										*P + CCVector3(	context.labelMarkerTextShift,
-														context.labelMarkerTextShift,
-														context.labelMarkerTextShift),
-										ccColor::white.rgba/*,
-										font*/ ); //DGM: I get an OpenGL error if the font is defined this way?!
+		for (unsigned j=0; j<count; j++)
+		{
+			const CCVector3* P = m_points[j].cloud->getPoint(m_points[j].index);
+            //QString title = getName() + QString("#%0").arg(j);
+            QString title = j == 0 ? getName() : "";
+			context._win->display3DLabel(	title,
+											*P + CCVector3(	context.labelMarkerTextShift,
+															context.labelMarkerTextShift,
+															context.labelMarkerTextShift),
+											ccColor::white.rgba/*,
+											font*/ ); //DGM: I get an OpenGL error if the font is defined this way?!
+		}
         glPopAttrib();
 	}
 
@@ -177,13 +263,15 @@ struct Tab
 	std::vector<QStringList> colContent;
 };
 
-void MarkedPoint::drawMeOnly2D(CC_DRAW_CONTEXT& context)
+void MarkedLine::drawMeOnly2D(CC_DRAW_CONTEXT& context)
 {
+    //测试
+    //return;
+
 	if (!m_dispIn2D)
 		return;
 
 	assert(!m_points.empty());
-    assert(m_points.size() == 1);
 
 	//standard case: list names pushing
 	bool pushName = MACRO_DrawEntityNames(context);
@@ -195,9 +283,10 @@ void MarkedPoint::drawMeOnly2D(CC_DRAW_CONTEXT& context)
 
 	//label title
 	const int precision = context.dispNumberPrecision;
-	QString title = getMarkedType()->getName() + "/" + getName(); //getTitle(precision);
+	//QString title = getMarkedType()->getName() + "/" + getName(); //getTitle(precision);
+    QString title = getName(); //getTitle(precision);
 
-#define DRAW_CONTENT_AS_TAB
+//#define DRAW_CONTENT_AS_TAB
 #ifdef DRAW_CONTENT_AS_TAB
 	//draw contents as an array
 	Tab tab(4);
@@ -252,6 +341,7 @@ void MarkedPoint::drawMeOnly2D(CC_DRAW_CONTEXT& context)
 #ifdef DRAW_CONTENT_AS_TAB
 				try
 				{
+                    //TODO 修改2D标签的显示内容
                     LabelInfo1 info;
                     getLabelInfo1(info);
 
@@ -603,9 +693,83 @@ void MarkedPoint::drawMeOnly2D(CC_DRAW_CONTEXT& context)
 		glPopName();
 }
 
-QVector3D MarkedPoint::getPoint()
+void MarkedLine::updateName()
 {
-    const cc2DLabel::PickedPoint pickedPoint = cc2DLabel::getPoint(0);
+    //ccObject::setName(mMarkedName + QString("(%1 control points)").arg(cc2DLabel::size()));
+}
+
+QStringList MarkedLine::getLabelContent(int precision)
+{
+    //重定义要显示在2D标签上的内容
+    QStringList body;
+
+    body << QString("Vertex number: %1").arg(cc2DLabel::size());
+
+    body << QString("Length: %1").arg(getLineLength(), 0, 'f', precision);
+
+    QVector3D startPoint = getStartPoint();
+    body << QString("Start point: (%1, %2, %3)").arg(startPoint.x(), 0, 'f', precision).arg(startPoint.y(), 0, 'f', precision).arg(startPoint.z(), 0, 'f', precision);
+
+    QVector3D endPoint = getEndPoint();
+    body << QString("End   point: (%1, %2, %3)").arg(endPoint.x(), 0, 'f', precision).arg(endPoint.y(), 0, 'f', precision).arg(endPoint.z(), 0, 'f', precision);
+
+    return body;
+}
+
+QVector3D MarkedLine::getStartPoint()
+{
+    const PickedPoint pickedPoint = cc2DLabel::getPoint(0);
     CCVector3d point = pickedPoint.cloud->toGlobal3d(*pickedPoint.cloud->getPoint(pickedPoint.index));
     return QVector3D(point.x, point.y, point.z);
+}
+
+QVector3D MarkedLine::getEndPoint()
+{
+    const PickedPoint pickedPoint = cc2DLabel::getPoint(cc2DLabel::size() - 1);
+    CCVector3d point = pickedPoint.cloud->toGlobal3d(*pickedPoint.cloud->getPoint(pickedPoint.index));
+    return QVector3D(point.x, point.y, point.z);
+}
+
+float MarkedLine::getLineLength()
+{
+    return mLineLength;
+}
+
+void MarkedLine::setShortestPathComputer(ShortestPathComputer *shortestPathComputer)
+{
+    mShortestPathComputer = shortestPathComputer;
+}
+
+void MarkedLine::undo()
+{
+    if (mCurrentPositionInHistory > 0)
+    {
+        mCurrentPositionInHistory--;
+        m_points = mHistory.at(mCurrentPositionInHistory).points;
+        mLineLength = mHistory.at(mCurrentPositionInHistory).lineLength;
+    }
+    else if (mCurrentPositionInHistory == 0)
+    {
+        mCurrentPositionInHistory--;
+        m_points.clear();
+        mLineLength = 0.0;
+    }
+    else
+    {
+        return;
+    }
+}
+
+void MarkedLine::redo()
+{
+    if (mCurrentPositionInHistory < mHistory.size() - 1)
+    {
+        mCurrentPositionInHistory++;
+        m_points = mHistory.at(mCurrentPositionInHistory).points;
+        mLineLength = mHistory.at(mCurrentPositionInHistory).lineLength;
+    }
+    else
+    {
+        return;
+    }
 }

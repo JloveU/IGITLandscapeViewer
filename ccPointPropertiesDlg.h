@@ -30,7 +30,11 @@ class cc2DViewportLabel;
 class ccHObject;
 
 #include "MarkedPoint.h"
-#include "SetMarkedPointPropertyDlg.h"
+#include "SetMarkedObjectPropertyDlg.h"
+#include "MarkedLine.h"
+#include "MarkedObject.h"
+#include "ccMesh.h"
+#include <QThread>
 
 //! Dialog for simple point picking (information, distance, etc.)
 class ccPointPropertiesDlg : public ccPointPickingGenericInterface, public Ui::PointPropertiesDlg
@@ -54,6 +58,13 @@ public:
 
 protected slots:
 
+    void onActivatePointMarking();
+    void onActivateLineMarking();
+    void onActivateAreaMarking();
+    void onMarkUndo();
+    void onMarkRedo();
+    void onMarkDone();
+    void onCancelLineMarking();
 	void onClose();
 	void activatePointPropertiesDisplay();
 	void activateDistanceDisplay();
@@ -66,7 +77,7 @@ protected slots:
 	void close2DZone();
 
     //将选择的点添加到数据库并显示
-    void addMarkedPointToDB(const QString &markedTypeName, const QString &markedPointName, const QColor &markedPointColor);
+    void addMarkedObjectToDB(const QString &markedTypeName, const QString &markedObjectName, const QColor &markedObjectColor);
 
 signals:
 
@@ -86,7 +97,10 @@ protected:
 		POINT_INFO,
 		POINT_POINT_DISTANCE,
 		POINTS_ANGLE,
-		RECT_ZONE
+		RECT_ZONE,
+        MARK_POINT,
+        MARK_LINE,
+        MARK_AREA
 	};
 
 	//inherited from ccPointPickingGenericInterface
@@ -116,14 +130,20 @@ protected:
     //当前点击的点
     MarkedPoint *mCurrentMarkedPoint;
 
-    //上次标记的点
-    MarkedPoint *mLastMarkedPoint;
-
     //设置标记点属性对话框
-    SetMarkedPointPropertyDlg *mSetMarkedPointPropertyDlg;
+    SetMarkedObjectPropertyDlg *mSetMarkedObjectPropertyDlg;
 
     //上次输入的标记点类型
     QString mLastMarkedTypeName;
+
+    //当前标记的线
+    MarkedLine *mCurrentMarkedLine;
+
+    //上次标记的物体
+    MarkedObject *mLastMarkedObject;
+
+    //最短路径计算器
+    ShortestPathComputer *mShortestPathComputer;
 
 };
 

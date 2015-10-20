@@ -1,14 +1,14 @@
-#include "SetMarkedPointPropertyDlg.h"
+#include "SetMarkedObjectPropertyDlg.h"
 #include <QColorDialog>
 #include <QBrush>
 #include <QMessageBox>
 #include <QtAlgorithms>
-#include "MarkedPoint.h"
+#include "MarkedObject.h"
 
-SetMarkedPointPropertyDlg::SetMarkedPointPropertyDlg(QWidget* parent)
+SetMarkedObjectPropertyDlg::SetMarkedObjectPropertyDlg(QWidget* parent)
     : QDialog(parent)
-    , Ui::SetMarkedPointPropertyDlg()
-    , mMarkedPointTreeRoot(NULL)
+    , Ui::SetMarkedObjectPropertyDlg()
+    , mMarkedObjectTreeRoot(NULL)
     , mColorSelectorLocked(false)
 {
     setupUi(this);
@@ -16,8 +16,8 @@ SetMarkedPointPropertyDlg::SetMarkedPointPropertyDlg(QWidget* parent)
     //设置初始值
     setMarkedTypeItems(QStringList());
     setMarkedTypeName(QString());
-    setMarkedPointName(QString());
-    setMarkedPointColor(QColor(0, 0, 255));
+    setMarkedObjectName(QString());
+    setMarkedObjectColor(QColor(0, 0, 255));
 
     //为不同类别预生成颜色列表
     //颜色分配方案说明：按灰度从0.0到1.0对应到伪彩色（从蓝到红），灰度依次为0.0、1.0、0.5、0.25、0.75、0.125、0.375、0.625、0.875……
@@ -51,60 +51,60 @@ SetMarkedPointPropertyDlg::SetMarkedPointPropertyDlg(QWidget* parent)
     connect(colorSelectButton, SIGNAL(clicked()), this, SLOT(selectColor()));
 
     //标记类型输入框内容改变时，名称输入框相应改变
-    connect(typeComboBox, SIGNAL(editTextChanged(const QString &)), this, SLOT(autoSetMarkedPointName(const QString &)));
+    connect(typeComboBox, SIGNAL(editTextChanged(const QString &)), this, SLOT(autoSetMarkedObjectName(const QString &)));
 
     //标记类型输入框内容改变时，颜色相应改变
-    connect(typeComboBox, SIGNAL(editTextChanged(const QString &)), this, SLOT(autoSetMarkedPointColor(const QString &)));
+    connect(typeComboBox, SIGNAL(editTextChanged(const QString &)), this, SLOT(autoSetMarkedObjectColor(const QString &)));
 
     //“确定”按钮点击事件
     connect(okButton, SIGNAL(clicked()), this, SLOT(checkInputAndCommit()));
 }
 
-void SetMarkedPointPropertyDlg::setMarkedPointTreeRoot(ccHObject *markedPointTreeRoot)
+void SetMarkedObjectPropertyDlg::setMarkedObjectTreeRoot(ccHObject *markedObjectTreeRoot)
 {
-    mMarkedPointTreeRoot = markedPointTreeRoot;
-    autoSetMarkedPointName(QString());
-    autoSetMarkedPointColor(QString());
+    mMarkedObjectTreeRoot = markedObjectTreeRoot;
+    autoSetMarkedObjectName(QString());
+    autoSetMarkedObjectColor(QString());
 }
 
-void SetMarkedPointPropertyDlg::setMarkedTypeItems(const QStringList &items)
+void SetMarkedObjectPropertyDlg::setMarkedTypeItems(const QStringList &items)
 {
     typeComboBox->clear();
     typeComboBox->addItems(items);
 }
 
-void SetMarkedPointPropertyDlg::setMarkedTypeName(const QString &name)
+void SetMarkedObjectPropertyDlg::setMarkedTypeName(const QString &name)
 {
     typeComboBox->setCurrentText(name);
 }
 
-QString SetMarkedPointPropertyDlg::getMarkedTypeName()
+QString SetMarkedObjectPropertyDlg::getMarkedTypeName()
 {
     return typeComboBox->currentText();
 }
 
-void SetMarkedPointPropertyDlg::setMarkedPointName(const QString &name)
+void SetMarkedObjectPropertyDlg::setMarkedObjectName(const QString &name)
 {
     nameLineEdit->setText(name);
 }
 
-QString SetMarkedPointPropertyDlg::getMarkedPointName()
+QString SetMarkedObjectPropertyDlg::getMarkedObjectName()
 {
     return nameLineEdit->text();
 }
 
-void SetMarkedPointPropertyDlg::setMarkedPointColor(const QColor &color)
+void SetMarkedObjectPropertyDlg::setMarkedObjectColor(const QColor &color)
 {
-    mMarkedPointColor = color;
+    mMarkedObjectColor = color;
     colorSelectButton->setStyleSheet(QString("background-color: rgb(%1, %2, %3);").arg(color.red()).arg(color.green()).arg(color.blue()));
 }
 
-QColor SetMarkedPointPropertyDlg::getMarkedPointColor()
+QColor SetMarkedObjectPropertyDlg::getMarkedObjectColor()
 {
-    return mMarkedPointColor;
+    return mMarkedObjectColor;
 }
 
-void SetMarkedPointPropertyDlg::selectColor()
+void SetMarkedObjectPropertyDlg::selectColor()
 {
     if (mColorSelectorLocked)
     {
@@ -112,84 +112,83 @@ void SetMarkedPointPropertyDlg::selectColor()
         return;
     }
     QColor color = QColorDialog::getColor(Qt::white, this);
-    setMarkedPointColor(color);
+    setMarkedObjectColor(color);
 }
 
-void SetMarkedPointPropertyDlg::show()
+void SetMarkedObjectPropertyDlg::show()
 {
-    assert(mMarkedPointTreeRoot);
+    assert(mMarkedObjectTreeRoot);
 
     ////设置各控件的状态和内容
     //获取标记点根标签下所有子标签的名称（即标记点所属类别），用以在弹出对话框中显示供选择
     QStringList markTypeItems;
-    for (int i = 0; i < mMarkedPointTreeRoot->getChildrenNumber(); i++)
+    for (int i = 0; i < mMarkedObjectTreeRoot->getChildrenNumber(); i++)
     {
-        markTypeItems.push_back(mMarkedPointTreeRoot->getChild(i)->getName());
+        markTypeItems.push_back(mMarkedObjectTreeRoot->getChild(i)->getName());
     }
     setMarkedTypeItems(markTypeItems);
     setMarkedTypeName(mMarkedTypeName);
-    autoSetMarkedPointName(mMarkedTypeName);
-    setMarkedPointColor(mMarkedPointColor);
+    autoSetMarkedObjectName(mMarkedTypeName);
+    setMarkedObjectColor(mMarkedObjectColor);
 
     QDialog::show();
 }
 
-void SetMarkedPointPropertyDlg::autoSetMarkedPointName(const QString &markedTypeName)
+void SetMarkedObjectPropertyDlg::autoSetMarkedObjectName(const QString &markedTypeName)
 {
-    assert(mMarkedPointTreeRoot);
+    assert(mMarkedObjectTreeRoot);
 
     if (markedTypeName.isEmpty())
     {
-        setMarkedPointName("");
+        setMarkedObjectName("");
         return;
     }
 
-    ccHObject *markedType = mMarkedPointTreeRoot->findDirectChild(markedTypeName);
+    ccHObject *markedType = mMarkedObjectTreeRoot->findDirectChild(markedTypeName);
     if (markedType)
     {
         int nameSuffixNumber = 1;
-        ccHObject *markedPoint = markedType->findDirectChild(markedTypeName + QString::number(nameSuffixNumber));
-        while (markedPoint)
+        ccHObject *markedObject = markedType->findDirectChild(markedTypeName + QString::number(nameSuffixNumber));
+        while (markedObject)
         {
             nameSuffixNumber++;
-            markedPoint = markedType->findDirectChild(markedTypeName + QString::number(nameSuffixNumber));
-
+            markedObject = markedType->findDirectChild(markedTypeName + QString::number(nameSuffixNumber));
         }
-        setMarkedPointName(markedTypeName + QString::number(nameSuffixNumber));
+        setMarkedObjectName(markedTypeName + QString::number(nameSuffixNumber));
         return;
     }
     else
     {
-        setMarkedPointName(markedTypeName + "1");
+        setMarkedObjectName(markedTypeName + "1");
         return;
     }
 }
 
-void SetMarkedPointPropertyDlg::autoSetMarkedPointColor(const QString &markedTypeName)
+void SetMarkedObjectPropertyDlg::autoSetMarkedObjectColor(const QString &markedTypeName)
 {
-    assert(mMarkedPointTreeRoot);
+    assert(mMarkedObjectTreeRoot);
 
     if (markedTypeName.isEmpty())
     {
-        setMarkedPointColor(QColor(0, 0, 255));
+        setMarkedObjectColor(QColor(0, 0, 255));
         mColorSelectorLocked = false;
         return;
     }
 
-    ccHObject *markedType = mMarkedPointTreeRoot->findDirectChild(markedTypeName);
+    ccHObject *markedType = mMarkedObjectTreeRoot->findDirectChild(markedTypeName);
     if (markedType)
     {
         if (markedType->getChildrenNumber() > 0)
         {
-            MarkedPoint *markedPoint = dynamic_cast<MarkedPoint*>(markedType->getChild(0));
-            assert(markedPoint);
-            setMarkedPointColor(markedPoint->getColor());
+            MarkedObject *markedObject = dynamic_cast<MarkedObject*>(markedType->getChild(0));
+            assert(markedObject);
+            setMarkedObjectColor(markedObject->getColor());
             mColorSelectorLocked = true;
             return;
         }
         else
         {
-            setMarkedPointColor(QColor(0, 0, 255));
+            setMarkedObjectColor(QColor(0, 0, 255));
             mColorSelectorLocked = false;
             return;
         }
@@ -206,12 +205,12 @@ void SetMarkedPointPropertyDlg::autoSetMarkedPointColor(const QString &markedTyp
 
             //检查是否已使用过了此颜色
             bool currentColorHasUsed = false;
-            for (unsigned i = 0; i < mMarkedPointTreeRoot->getChildrenNumber(); i++)
+            for (unsigned i = 0; i < mMarkedObjectTreeRoot->getChildrenNumber(); i++)
             {
-                ccHObject *markedType = mMarkedPointTreeRoot->getChild(i);
+                ccHObject *markedType = mMarkedObjectTreeRoot->getChild(i);
                 if (markedType->getChildrenNumber() > 0)
                 {
-                    QColor currentTypeColor = static_cast<MarkedPoint*>(markedType->getChild(0))->getColor();
+                    QColor currentTypeColor = static_cast<MarkedObject*>(markedType->getChild(0))->getColor();
                     if (currentTypeColor == color)
                     {
                         currentColorHasUsed = true;
@@ -227,11 +226,11 @@ void SetMarkedPointPropertyDlg::autoSetMarkedPointColor(const QString &markedTyp
         }
         if (hasUnusedColorInList)
         {
-            setMarkedPointColor(color);
+            setMarkedObjectColor(color);
         }
         else
         {
-            setMarkedPointColor(QColor(0, 0, 0)); //需要手动设置颜色
+            setMarkedObjectColor(QColor(0, 0, 0)); //需要手动设置颜色
         }
 
         mColorSelectorLocked = false;
@@ -239,9 +238,9 @@ void SetMarkedPointPropertyDlg::autoSetMarkedPointColor(const QString &markedTyp
     }
 }
 
-void SetMarkedPointPropertyDlg::checkInputAndCommit()
+void SetMarkedObjectPropertyDlg::checkInputAndCommit()
 {
-    assert(mMarkedPointTreeRoot);
+    assert(mMarkedObjectTreeRoot);
 
     //确保类型输入框不为空
     QString markedTypeName = getMarkedTypeName();
@@ -252,18 +251,18 @@ void SetMarkedPointPropertyDlg::checkInputAndCommit()
     }
 
     //确保名称输入框不为空
-    QString markedPointName = getMarkedPointName();
-    if (markedPointName.isEmpty())
+    QString markedObjectName = getMarkedObjectName();
+    if (markedObjectName.isEmpty())
     {
         QMessageBox::information(this, QString::fromAscii("警告"), QString::fromAscii("输入的标记点名称不能为空，请重新输入！"));
         return;
     }
 
     //保证同一类型下没有重名
-    ccHObject *markedType = mMarkedPointTreeRoot->findDirectChild(markedTypeName);
+    ccHObject *markedType = mMarkedObjectTreeRoot->findDirectChild(markedTypeName);
     if (markedType)
     {
-        if (markedType->findDirectChild(markedPointName))
+        if (markedType->findDirectChild(markedObjectName))
         {
             QMessageBox::information(this, QString::fromAscii("警告"), QString::fromAscii("输入的标记点名称已存在，请重新输入！"));
             return;
@@ -271,14 +270,14 @@ void SetMarkedPointPropertyDlg::checkInputAndCommit()
     }
 
     //保证不同类型的颜色不同
-    const QColor markedPointColor = getMarkedPointColor();
-    for (unsigned i = 0; i < mMarkedPointTreeRoot->getChildrenNumber(); i++)
+    const QColor markedObjectColor = getMarkedObjectColor();
+    for (unsigned i = 0; i < mMarkedObjectTreeRoot->getChildrenNumber(); i++)
     {
-        ccHObject *markedType = mMarkedPointTreeRoot->getChild(i);
+        ccHObject *markedType = mMarkedObjectTreeRoot->getChild(i);
         if (markedType->getName() != markedTypeName && markedType->getChildrenNumber() > 0)
         {
-            QColor currentTypeColor = static_cast<MarkedPoint*>(markedType->getChild(0))->getColor();
-            if (currentTypeColor == markedPointColor)
+            QColor currentTypeColor = static_cast<MarkedObject*>(markedType->getChild(0))->getColor();
+            if (currentTypeColor == markedObjectColor)
             {
                 QMessageBox::information(this, QString::fromAscii("警告"), QString::fromAscii("选择的颜色已被其他类型占用，请重新选择！"));
                 return;
@@ -288,14 +287,14 @@ void SetMarkedPointPropertyDlg::checkInputAndCommit()
 
     //保存本次输入状态，以供下次显示
     mMarkedTypeName = getMarkedTypeName();
-    mMarkedPointColor = getMarkedPointColor();
+    mMarkedObjectColor = getMarkedObjectColor();
 
     hide();
     emit accepted();
-    emit committed(getMarkedTypeName(), getMarkedPointName(), getMarkedPointColor());
+    emit committed(getMarkedTypeName(), getMarkedObjectName(), getMarkedObjectColor());
 }
 
-QColor SetMarkedPointPropertyDlg::gray2PseudoColor(float grayValue)
+QColor SetMarkedObjectPropertyDlg::gray2PseudoColor(float grayValue)
 {
     //将grayValue规范化到0～1之间
     if(grayValue < 0.0)

@@ -42,6 +42,7 @@ cc2DLabel::cc2DLabel(QString name/*=QString()*/)
 	m_screenPos[0] = m_screenPos[1] = 0.05f;
 
 	clear(false);
+    setName(name.isEmpty() ? "label" : name); //Added by yuqiang on 2015/10/17, clear() reset its name to "Label", so I set it again
 
 	lockVisibility(false);
 	setEnabled(true);
@@ -873,12 +874,12 @@ void cc2DLabel::drawMeOnly2D(CC_DRAW_CONTEXT& context)
 #ifdef DRAW_CONTENT_AS_TAB
 	//draw contents as an array
 	Tab tab(4);
-	int rowHeight = 0;
 #else
 //simply display the content as text
 	QStringList body;
 #endif
 
+	int rowHeight = 0;  //Moved here by yuqiang on 2015/10/16
 	int titleHeight = 0;
 	GLdouble arrowDestX = -1.0, arrowDestY = -1.0;
 	QFont bodyFont,titleFont;

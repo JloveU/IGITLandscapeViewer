@@ -73,6 +73,9 @@
 #include "ccLog.h"
 #include <QColor>
 #include "CCGeom.h" //CCVector3d defined
+#include "MarkedObject.h"
+#include "MarkedPoint.h"
+#include "MarkedLine.h"
 
 // Default 'None' string
 static const QString c_noneString = QString("None");
@@ -236,10 +239,10 @@ void ccPropertiesTreeDelegate::fillModel(ccHObject* hObject)
 	else if (m_currentObject->isA(CC_TYPES::LABEL_2D))
 	{
         fillWithLabel(ccHObjectCaster::To2DLabel(m_currentObject));
-        MarkedPoint *markedPoint = dynamic_cast<MarkedPoint*>(m_currentObject); //若m_currentObject不是MarkedPoint类型（cc2DLabel的子类），则dynamic_cast会返回NULL，此处用来判断其是否MarkedPoint类型
-        if (markedPoint != NULL)
+        MarkedObject *markedObject = dynamic_cast<MarkedObject*>(m_currentObject); //若m_currentObject不是MarkedObject类型（cc2DLabel的子类），则dynamic_cast会返回NULL，此处用来判断其是否MarkedObject类型
+        if (markedObject != NULL)
         {
-            fillWithMarkedPoint(markedPoint);
+            fillWithMarkedObject(markedObject);
         }
 	}
 	else if (m_currentObject->isKindOf(CC_TYPES::VIEWPORT_2D_OBJECT))
@@ -744,8 +747,8 @@ void ccPropertiesTreeDelegate::fillWithLabel(cc2DLabel* _obj)
 	addSeparator("Label");
 
 	//Body
-	QStringList body = _obj->getLabelContent(ccGui::Parameters().displayedNumPrecision);
-	appendRow( ITEM("Body"), ITEM(body.join("\n")) );
+	//QStringList body = _obj->getLabelContent(ccGui::Parameters().displayedNumPrecision);
+	//appendRow( ITEM("Body"), ITEM(body.join("\n")) );
 
 	//Show label in 2D
 	appendRow( ITEM("Show 2D label"), CHECKABLE_ITEM(_obj->isDisplayedIn2D(),OBJECT_LABEL_DISP_2D) );
@@ -950,23 +953,44 @@ template<int N, class ElementType> void ccPropertiesTreeDelegate::fillWithChunke
 	fillWithShareable(_obj);
 }
 
-void ccPropertiesTreeDelegate::fillWithMarkedPoint(MarkedPoint* _obj)
+void ccPropertiesTreeDelegate::fillWithMarkedObject(MarkedObject* _obj)
 {
     assert(_obj && m_model);
 
-    addSeparator(QString::fromAscii("标记点"));
+    addSeparator(QString::fromAscii("标记属性"));
 
-    const cc2DLabel::PickedPoint pickedPoint = _obj->getPoint(0);
-    CCVector3d point = pickedPoint.cloud->toGlobal3d(*pickedPoint.cloud->getPoint(pickedPoint.index)); //坐标
-    int precision = 6; //坐标显示精度
-    appendRow(ITEM(QString::fromAscii("坐标")), ITEM(QString("%1,%2,%3").arg(QString::number(point.x,'f',precision)).arg(QString::number(point.y,'f',precision)).arg(QString::number(point.z,'f',precision))));
-
+    //标记物体的公共属性
     appendRow(ITEM(QString::fromAscii("类别")), ITEM(_obj->getMarkedType()->getName()));
-
     appendRow(ITEM(QString::fromAscii("名称")), ITEM(_obj->getName()));
-
     QColor color = _obj->getColor();
     appendRow(ITEM(QString::fromAscii("颜色")), ITEM(QString("%1,%2,%3").arg(color.red()).arg(color.green()).arg(color.blue())));
+
+    //不同种类（点、线、区域）标记物体的特殊属性
+    //const int precision = 6; //坐标显示精度
+    MarkedPoint *markedPoint = dynamic_cast<MarkedPoint*>(_obj);
+    if (markedPoint != NULL)
+    {
+        QVector3D point = markedPoint->getPoint();
+        appendRow(ITEM(QString::fromAscii("坐标")), ITEM(QString("X: %1\nY: %2\nZ: %3").arg(QString::number(point.x())).arg(QString::number(point.y())).arg(QString::number(point.z()))));
+        return;
+    }
+    MarkedLine *markedLine = dynamic_cast<MarkedLine*>(_obj);
+    if (markedLine != NULL)
+    {
+        appendRow(ITEM(QString::fromAscii("控制点数量")), ITEM(QString::number(markedLine->size())));
+
+        appendRow(ITEM(QString::fromAscii("长度")), ITEM(QString::number(markedLine->getLineLength())));
+        
+        //起点坐标
+        QVector3D startPoint = markedLine->getStartPoint();
+        appendRow(ITEM(QString::fromAscii("起点坐标")), ITEM(QString("X: %1\nY: %2\nZ: %3").arg(QString::number(startPoint.x())).arg(QString::number(startPoint.y())).arg(QString::number(startPoint.z()))));
+
+        //终点坐标
+        QVector3D endPoint = markedLine->getEndPoint();
+        appendRow(ITEM(QString::fromAscii("终点坐标")), ITEM(QString("X: %1\nY: %2\nZ: %3").arg(QString::number(endPoint.x())).arg(QString::number(endPoint.y())).arg(QString::number(endPoint.z()))));
+        return;
+    }
+
 }
 
 bool ccPropertiesTreeDelegate::isWideEditor(int itemData) const

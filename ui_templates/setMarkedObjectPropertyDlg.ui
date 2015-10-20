@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>SetMarkedPointPropertyDlg</class>
- <widget class="QDialog" name="SetMarkedPointPropertyDlg">
+ <class>SetMarkedObjectPropertyDlg</class>
+ <widget class="QDialog" name="SetMarkedObjectPropertyDlg">
   <property name="windowModality">
    <enum>Qt::ApplicationModal</enum>
   </property>
@@ -172,7 +172,7 @@
   <connection>
    <sender>cancelButton</sender>
    <signal>clicked()</signal>
-   <receiver>SetMarkedPointPropertyDlg</receiver>
+   <receiver>SetMarkedObjectPropertyDlg</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

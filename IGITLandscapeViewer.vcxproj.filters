@@ -689,20 +689,35 @@
     <ClCompile Include="SetMarkedPointTreeRootNameDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SetMarkedPointPropertyDlg.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_SetMarkedPointPropertyDlg.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_SetMarkedPointPropertyDlg.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_SetMarkedPointTreeRootNameDlg.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Release\moc_SetMarkedPointTreeRootNameDlg.cpp">
       <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="MarkedLine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MarkedObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_SetMarkedObjectPropertyDlg.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_SetMarkedObjectPropertyDlg.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="SetMarkedObjectPropertyDlg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ShortestPathComputer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BoostGraphInitThread.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_BoostGraphInitThread.cpp">
+      <Filter>Generated Files\Debug</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -880,13 +895,16 @@
     <CustomBuild Include="ui_templates\setMarkedPointTreeRootNameDlg.ui">
       <Filter>Form Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="ui_templates\setMarkedPointPropertyDlg.ui">
-      <Filter>Form Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="SetMarkedPointPropertyDlg.h">
+    <CustomBuild Include="SetMarkedPointTreeRootNameDlg.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="SetMarkedPointTreeRootNameDlg.h">
+    <CustomBuild Include="SetMarkedObjectPropertyDlg.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ui_templates\setMarkedObjectPropertyDlg.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="BoostGraphInitThread.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
   </ItemGroup>
@@ -1272,8 +1290,17 @@
     <ClInclude Include="GeneratedFiles\ui_setMarkedPointTreeRootNameDlg.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
-    <ClInclude Include="GeneratedFiles\ui_setMarkedPointPropertyDlg.h">
+    <ClInclude Include="MarkedLine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MarkedObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_setMarkedObjectPropertyDlg.h">
       <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ShortestPathComputer.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
