@@ -570,6 +570,7 @@
     <ClCompile Include="libs\qcustomplot\qcustomplot.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mainwindow.cpp" />
+    <ClCompile Include="MarkedArea.cpp" />
     <ClCompile Include="MarkedLine.cpp" />
     <ClCompile Include="MarkedObject.cpp" />
     <ClCompile Include="MarkedPoint.cpp" />
@@ -663,6 +664,7 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_DLL -DQT_CORE_LIB -DQT_GUI_LIB -DQT_XML_LIB -DQT_QT3SUPPORT_LIB -DQT3_SUPPORT -DNOMINMAX -DUSE_GLEW -DGLEW_STATIC -DNO_TIMER -DTRILIBRARY -DNODEFAULTLIB -DDEBUG "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtXml" "-I$(QTDIR)\include\Qt3Support"</Command>
     </CustomBuild>
+    <ClInclude Include="MarkedArea.h" />
     <ClInclude Include="ShortestPathComputer.h" />
     <CustomBuild Include="SetMarkedObjectPropertyDlg.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath);$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>

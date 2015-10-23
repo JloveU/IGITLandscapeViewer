@@ -269,6 +269,40 @@ bool cc2DLabel::addPoint(ccGenericPointCloud* cloud, unsigned pointIndex)
 	return true;
 }
 
+bool cc2DLabel::addPoint(ccMesh* mesh, unsigned pointIndex)
+{
+    assert(mesh);
+    ccGenericPointCloud *cloud = mesh->getAssociatedCloud();
+    assert(cloud && cloud->size()>pointIndex);
+
+    if (m_points.size() == 3)
+        return false;
+
+    try
+    {
+        m_points.resize(m_points.size()+1);
+    }
+    catch(std::bad_alloc)
+    {
+        //not enough memory
+        return false;
+    }
+
+    m_points.back().mesh = mesh;
+    m_points.back().cloud = cloud;
+    m_points.back().index = pointIndex;
+
+    updateName();
+
+    //we want to be notified whenever an associated cloud is deleted (in which case
+    //we'll automatically clear the label)
+    cloud->addDependency(this,DP_NOTIFY_OTHER_ON_DELETE);
+    //we must also warn the cloud whenever we delete this label
+    //addDependency(cloud,DP_NOTIFY_OTHER_ON_DELETE); //DGM: automatically done by the previous call to addDependency!
+
+    return true;
+}
+
 bool cc2DLabel::toFile_MeOnly(QFile& out) const
 {
 	if (!ccHObject::toFile_MeOnly(out))

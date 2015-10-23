@@ -13,9 +13,6 @@ class MarkedLine : public MarkedObject
 
 private:
 
-    //名称（不同于ccObject的m_name，mMarkedName是原始输入的名称，m_name会在其后添加控制点数量等信息）
-    QString mMarkedName;
-
     ShortestPathComputer *mShortestPathComputer;
 
     float mLineLength;
@@ -58,9 +55,6 @@ public:
 
     //inherited from cc2DLabel
     virtual void drawMeOnly2D(CC_DRAW_CONTEXT& context);
-
-    //inherited from cc2DLabel
-    void updateName();
 
     //inherited from cc2DLabel
     QStringList getLabelContent(int precision);

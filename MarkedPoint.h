@@ -15,16 +15,22 @@ public:
     MarkedPoint(QString name);
 
     //设置点
-    void setPoint(ccGenericPointCloud* cloud, unsigned pointIndex);
+    void setPoint(ccMesh* mesh, unsigned pointIndex);
 
     //inherited from cc2DLabel
     bool addPoint(ccGenericPointCloud* cloud, unsigned pointIndex);
+
+    //inherited from cc2DLabel
+    bool addPoint(ccMesh* mesh, unsigned pointIndex);
 
     //inherited from cc2DLabel
     virtual void drawMeOnly3D(CC_DRAW_CONTEXT& context);
 
     //inherited from cc2DLabel
     virtual void drawMeOnly2D(CC_DRAW_CONTEXT& context);
+
+    //inherited from cc2DLabel
+    QStringList getLabelContent(int precision);
 
     //获取点坐标
     QVector3D getPoint();

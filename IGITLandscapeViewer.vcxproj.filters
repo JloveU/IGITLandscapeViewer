@@ -719,6 +719,9 @@
     <ClCompile Include="GeneratedFiles\Debug\moc_BoostGraphInitThread.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
+    <ClCompile Include="MarkedArea.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="mainwindow.h">
@@ -1300,6 +1303,9 @@
       <Filter>Generated Files</Filter>
     </ClInclude>
     <ClInclude Include="ShortestPathComputer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MarkedArea.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

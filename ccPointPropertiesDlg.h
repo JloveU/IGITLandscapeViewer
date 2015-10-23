@@ -34,7 +34,7 @@ class ccHObject;
 #include "MarkedLine.h"
 #include "MarkedObject.h"
 #include "ccMesh.h"
-#include <QThread>
+#include "MarkedArea.h"
 
 //! Dialog for simple point picking (information, distance, etc.)
 class ccPointPropertiesDlg : public ccPointPickingGenericInterface, public Ui::PointPropertiesDlg
@@ -65,6 +65,7 @@ protected slots:
     void onMarkRedo();
     void onMarkDone();
     void onCancelLineMarking();
+    void onCancelAreaMarking();
 	void onClose();
 	void activatePointPropertiesDisplay();
 	void activateDistanceDisplay();
@@ -144,6 +145,9 @@ protected:
 
     //最短路径计算器
     ShortestPathComputer *mShortestPathComputer;
+
+    //当前标记的线
+    MarkedArea *mCurrentMarkedArea;
 
 };
 

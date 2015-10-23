@@ -12,14 +12,21 @@ MarkedPoint::MarkedPoint(QString name)
 {
 }
 
-void MarkedPoint::setPoint(ccGenericPointCloud* cloud, unsigned pointIndex)
+void MarkedPoint::setPoint(ccMesh* mesh, unsigned pointIndex)
 {
     m_points.clear();
 
-    cc2DLabel::addPoint(cloud, pointIndex);
+    cc2DLabel::addPoint(mesh, pointIndex);
 }
 
 bool MarkedPoint::addPoint(ccGenericPointCloud* cloud, unsigned pointIndex)
+{
+    //forbid to add point
+    assert(false);
+    return false;
+}
+
+bool MarkedPoint::addPoint(ccMesh* mesh, unsigned pointIndex)
 {
     //forbid to add point
     assert(false);
@@ -197,7 +204,7 @@ void MarkedPoint::drawMeOnly2D(CC_DRAW_CONTEXT& context)
 	const int precision = context.dispNumberPrecision;
 	QString title = getMarkedType()->getName() + "/" + getName(); //getTitle(precision);
 
-#define DRAW_CONTENT_AS_TAB
+//#define DRAW_CONTENT_AS_TAB
 #ifdef DRAW_CONTENT_AS_TAB
 	//draw contents as an array
 	Tab tab(4);
@@ -601,6 +608,20 @@ void MarkedPoint::drawMeOnly2D(CC_DRAW_CONTEXT& context)
 
 	if (pushName)
 		glPopName();
+}
+
+QStringList MarkedPoint::getLabelContent(int precision)
+{
+    //重定义要显示在2D标签上的内容
+    QStringList body;
+
+    QVector3D point = getPoint();
+    body << QString("Coordinate: (%1, %2, %3)").arg(point.x(), 0, 'f', precision).arg(point.y(), 0, 'f', precision).arg(point.z(), 0, 'f', precision);
+
+    //测试
+    //body << QString("Is boundary: %1").arg(m_points[0].mesh->isBoundaryVertex(m_points[0].index));
+
+    return body;
 }
 
 QVector3D MarkedPoint::getPoint()

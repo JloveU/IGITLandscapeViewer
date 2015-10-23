@@ -76,6 +76,7 @@
 #include "MarkedObject.h"
 #include "MarkedPoint.h"
 #include "MarkedLine.h"
+#include "MarkedArea.h"
 
 // Default 'None' string
 static const QString c_noneString = QString("None");
@@ -967,18 +968,14 @@ void ccPropertiesTreeDelegate::fillWithMarkedObject(MarkedObject* _obj)
 
     //不同种类（点、线、区域）标记物体的特殊属性
     //const int precision = 6; //坐标显示精度
-    MarkedPoint *markedPoint = dynamic_cast<MarkedPoint*>(_obj);
-    if (markedPoint != NULL)
+    if (MarkedPoint *markedPoint = dynamic_cast<MarkedPoint*>(_obj))
     {
         QVector3D point = markedPoint->getPoint();
         appendRow(ITEM(QString::fromAscii("坐标")), ITEM(QString("X: %1\nY: %2\nZ: %3").arg(QString::number(point.x())).arg(QString::number(point.y())).arg(QString::number(point.z()))));
         return;
     }
-    MarkedLine *markedLine = dynamic_cast<MarkedLine*>(_obj);
-    if (markedLine != NULL)
+    else if (MarkedLine *markedLine = dynamic_cast<MarkedLine*>(_obj))
     {
-        appendRow(ITEM(QString::fromAscii("控制点数量")), ITEM(QString::number(markedLine->size())));
-
         appendRow(ITEM(QString::fromAscii("长度")), ITEM(QString::number(markedLine->getLineLength())));
         
         //起点坐标
@@ -990,7 +987,21 @@ void ccPropertiesTreeDelegate::fillWithMarkedObject(MarkedObject* _obj)
         appendRow(ITEM(QString::fromAscii("终点坐标")), ITEM(QString("X: %1\nY: %2\nZ: %3").arg(QString::number(endPoint.x())).arg(QString::number(endPoint.y())).arg(QString::number(endPoint.z()))));
         return;
     }
+    else if (MarkedArea *markedArea = dynamic_cast<MarkedArea*>(_obj))
+    {
+        appendRow(ITEM(QString::fromAscii("周长")), ITEM(QString::number(markedArea->getBoundaryLength())));
 
+        appendRow(ITEM(QString::fromAscii("面积")), ITEM(QString::number(markedArea->getArea())));
+
+        //中心点坐标
+        QVector3D centerPoint = markedArea->getCenterPoint();
+        appendRow(ITEM(QString::fromAscii("中心点坐标")), ITEM(QString("X: %1\nY: %2\nZ: %3").arg(QString::number(centerPoint.x())).arg(QString::number(centerPoint.y())).arg(QString::number(centerPoint.z()))));
+
+        //拟合平面法向量
+        QVector3D projectPlaneNormal = markedArea->getProjectPlaneNormal();
+        appendRow(ITEM(QString::fromAscii("拟合平面法向量")), ITEM(QString("X: %1\nY: %2\nZ: %3").arg(QString::number(projectPlaneNormal.x())).arg(QString::number(projectPlaneNormal.y())).arg(QString::number(projectPlaneNormal.z()))));
+        return;
+    }
 }
 
 bool ccPropertiesTreeDelegate::isWideEditor(int itemData) const

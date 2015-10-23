@@ -22,6 +22,7 @@
 #include "qCC_db.h"
 #include "ccHObject.h"
 #include "ccInteractor.h"
+#include "ccMesh.h"
 
 //Qt
 #include <QString>
@@ -29,6 +30,7 @@
 #include <QFontMetrics>
 
 class ccGenericPointCloud;
+class ccMesh;
 
 //! 2D label (typically attached to points)
 class QCC_DB_LIB_API cc2DLabel : public ccHObject, public ccInteractor
@@ -55,6 +57,9 @@ public:
 		\return false if 'full'
 	**/
 	bool addPoint(ccGenericPointCloud* cloud, unsigned pointIndex);
+
+    //Added by yuqiang on 2015/10/22
+    bool addPoint(ccMesh* mesh, unsigned pointIndex);
 
 	//! Gets label content (as it will be displayed)
 	/** \param precision displayed numbers precision
@@ -101,6 +106,8 @@ public:
 	**/
 	struct PickedPoint
 	{
+        //! mesh //Added by yuqiang on 2015/10/22
+        ccMesh* mesh;
 		//! cloud
 		ccGenericPointCloud* cloud;
 		//! index
@@ -108,15 +115,24 @@ public:
 
 		//! Default constructor
 		PickedPoint()
-			: cloud(0)
+            : mesh(0)
+            , cloud(0)
 			, index(0)
 		{}
 
 		//! Constructor from a point and its index
 		PickedPoint(ccGenericPointCloud* _cloud, unsigned _index)
-			: cloud(_cloud)
+            : mesh(0)
+            , cloud(_cloud)
 			, index(_index)
 		{}
+
+        //! Constructor from a mesh and its point index //Added by yuqiang on 2015/10/22
+        PickedPoint(ccMesh* _mesh, unsigned _index)
+            : mesh(_mesh)
+            , cloud(_mesh->getAssociatedCloud())
+            , index(_index)
+        {}
 	};
 
 	//! Returns a given point

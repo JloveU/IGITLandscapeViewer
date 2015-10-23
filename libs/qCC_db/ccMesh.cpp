@@ -3617,3 +3617,94 @@ bool ccMesh::convertMaterialsToVertexColors()
 
 	return true;
 }
+
+void ccMesh::createIndexs()
+{
+    if (!m_associatedCloud
+        || m_associatedCloud->size() == 0
+        || size() == 0)
+    {
+        return;
+    }
+
+    const unsigned triNum = size();
+    const unsigned vertNum = m_associatedCloud->size();
+
+    mVertVertIndexs.resize(vertNum);
+    mVertTriIndexs.resize(vertNum);
+
+    for (unsigned triIndex = 0; triIndex < triNum; triIndex++)
+    {
+        const unsigned *triVertIndexs = getTriangleIndexes(triIndex)->i;
+        for (unsigned triVertIndex = 0; triVertIndex < 3; triVertIndex++)
+        {
+            //mVertVertIndexs
+            QVector<unsigned> &currentVertex = mVertVertIndexs[triVertIndexs[triVertIndex]];
+            unsigned nextVertexIndex = (triVertIndex + 1) % 3;
+            if (!currentVertex.contains(triVertIndexs[nextVertexIndex]))
+            {
+                currentVertex.push_back(triVertIndexs[nextVertexIndex]);
+            }
+            nextVertexIndex = (triVertIndex + 2) % 3;
+            if (!currentVertex.contains(triVertIndexs[nextVertexIndex]))
+            {
+                currentVertex.push_back(triVertIndexs[nextVertexIndex]);
+            }
+
+            //mVertTriIndexs
+            mVertTriIndexs[triVertIndexs[triVertIndex]].push_back(triIndex);
+        }
+    }
+
+    //mVertIsBondaryFlags
+    mVertIsBondaryFlags.resize(vertNum);
+    mVertIsBondaryFlags.fill(false);
+    for (unsigned vertIndex = 0; vertIndex < vertNum; vertIndex++)
+    {
+        const QVector<unsigned> &vertVertIndexs = mVertVertIndexs[vertIndex];
+        const QVector<unsigned> &vertTriIndexs = mVertTriIndexs[vertIndex];
+        const unsigned vertVertNum = vertVertIndexs.size();
+        const unsigned vertTriNum = vertTriIndexs.size();
+        for (unsigned vertVertIndex = 0; vertVertIndex < vertVertNum; vertVertIndex++)
+        {
+            unsigned triCountWhichHasThisVert = 0;
+            for (unsigned vertTriIndex = 0; vertTriIndex < vertTriNum; vertTriIndex++)
+            {
+                const unsigned triIndex = vertTriIndexs[vertTriIndex];
+                const unsigned *triVertIndexs = getTriangleIndexes(triIndex)->i;
+                bool hasThisVert = false;
+                for (unsigned i = 0; i < 3; i++)
+                {
+                    if (triVertIndexs[i] == vertVertIndexs[vertVertIndex])
+                    {
+                        hasThisVert = true;
+                    }
+                }
+                if (hasThisVert)
+                {
+                    triCountWhichHasThisVert++;
+                }
+            }
+            if (triCountWhichHasThisVert <= 1) //说明该顶点为边界点
+            {
+                mVertIsBondaryFlags[vertIndex] = true;
+                break;
+            }
+        }
+    }
+}
+
+const QVector<unsigned> & ccMesh::getVertVertIndexs(const unsigned pointIndex) const
+{
+    return mVertVertIndexs[pointIndex];
+}
+
+const QVector<unsigned> & ccMesh::getVertTriIndexs(const unsigned pointIndex) const
+{
+    return mVertTriIndexs[pointIndex];
+}
+
+bool ccMesh::isBoundaryVertex(const unsigned pointIndex) const
+{
+    return mVertIsBondaryFlags[pointIndex];
+}

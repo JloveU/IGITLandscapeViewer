@@ -56,6 +56,7 @@ ccPointPropertiesDlg::ccPointPropertiesDlg(QWidget* parent, ccDBRoot *ccRoot)
     , mCurrentMarkedLine(NULL)
     , mLastMarkedObject(NULL)
     , mShortestPathComputer(NULL)
+    , mCurrentMarkedArea(NULL)
 {
 	setupUi(this);
 	setWindowFlags(Qt::FramelessWindowHint |Qt::Tool);
@@ -168,28 +169,48 @@ void ccPointPropertiesDlg::stop(bool state)
 void ccPointPropertiesDlg::onClose()
 {
     onCancelLineMarking();
+    onCancelAreaMarking();
 
-    //将当前标记的2D标签隐藏
+    //将所有标记物体的2D标签隐藏
     if (mCurrentMarkedPoint)
     {
-        mCurrentMarkedPoint->setDisplayedIn2D(false);
+        mCurrentMarkedPoint->setSelected(false);
     }
     if (mCurrentMarkedLine)
     {
-        mCurrentMarkedLine->setDisplayedIn2D(false);
+        mCurrentMarkedLine->setSelected(false);
+    }
+    if (mCurrentMarkedArea)
+    {
+        mCurrentMarkedArea->setSelected(false);
+    }
+    if (mLastMarkedObject)
+    {
+        mLastMarkedObject->setSelected(false);
     }
 
-	stop(false);
+    if (m_associatedWin)
+    {
+        m_associatedWin->updateGL();
+    }
+
+    stop(false);
 }
 
 void ccPointPropertiesDlg::onActivatePointMarking()
 {
-    onCancelLineMarking();
-
     m_pickingMode = MARK_POINT;
     markPointButton->setDown(true);
     markLineButton->setDown(false);
     markAreaButton->setDown(false);
+
+    onCancelLineMarking();
+    onCancelAreaMarking();
+
+    if (mLastMarkedObject)
+    {
+        mLastMarkedObject->setSelected(false);
+    }
 
     if (m_associatedWin)
     {
@@ -207,6 +228,13 @@ void ccPointPropertiesDlg::onActivateLineMarking()
     markLineButton->setDown(true);
     markAreaButton->setDown(false);
 
+    onCancelAreaMarking();
+
+    if (mLastMarkedObject)
+    {
+        mLastMarkedObject->setSelected(false);
+    }
+
     if (m_associatedWin)
     {
         m_associatedWin->setInteractionMode(ccGLWindow::TRANSFORM_CAMERA);
@@ -218,18 +246,25 @@ void ccPointPropertiesDlg::onActivateLineMarking()
 
 void ccPointPropertiesDlg::onActivateAreaMarking()
 {
-    onCancelLineMarking();
-
     m_pickingMode = MARK_AREA;
     markPointButton->setDown(false);
     markLineButton->setDown(false);
     markAreaButton->setDown(true);
+
+    onCancelLineMarking();
+
+    if (mLastMarkedObject)
+    {
+        mLastMarkedObject->setSelected(false);
+    }
 
     if (m_associatedWin)
     {
         m_associatedWin->setInteractionMode(ccGLWindow::TRANSFORM_CAMERA);
         m_associatedWin->updateGL();
     }
+
+    mCurrentMarkedArea = new MarkedArea();
 }
 
 void ccPointPropertiesDlg::onMarkUndo()
@@ -245,7 +280,12 @@ void ccPointPropertiesDlg::onMarkUndo()
         }
         break;
     case MARK_AREA:
-        //TODO
+        assert(mCurrentMarkedArea);
+        mCurrentMarkedArea->undo();
+        if (m_associatedWin)
+        {
+            m_associatedWin->redraw();
+        }
         break;
     }
 }
@@ -263,7 +303,12 @@ void ccPointPropertiesDlg::onMarkRedo()
         }
         break;
     case MARK_AREA:
-        //TODO
+        assert(mCurrentMarkedArea);
+        mCurrentMarkedArea->redo();
+        if (m_associatedWin)
+        {
+            m_associatedWin->redraw();
+        }
         break;
     }
 }
@@ -283,6 +328,23 @@ void ccPointPropertiesDlg::onCancelLineMarking()
     }
 
     mCurrentMarkedLine->clear();
+}
+
+void ccPointPropertiesDlg::onCancelAreaMarking()
+{
+    if (!mCurrentMarkedArea)
+    {
+        return;
+    }
+
+    if (m_associatedWin)
+    {
+        //取消显示该MarkedLine
+        m_associatedWin->removeFromOwnDB(mCurrentMarkedArea);
+        m_associatedWin->redraw();
+    }
+
+    mCurrentMarkedArea->clear();
 }
 
 void ccPointPropertiesDlg::activatePointPropertiesDisplay()
@@ -532,14 +594,29 @@ void ccPointPropertiesDlg::processPickedTriangle(ccMesh* mesh, unsigned triangle
     assert(m_associatedWin);
 
     CCLib::TriangleSummitsIndexes* summitsIndexes = mesh->getTriangleIndexes(triangleIndex);
-
     ccGenericPointCloud* cloud = mesh->getAssociatedCloud();
-    unsigned pointIndex = summitsIndexes->i1;
-    if (!cloud->getPoint(pointIndex))
+
+    //计算该三角面片的三个顶点中距离鼠标点击点最近的顶点
+    const CCVector3 *triangleVertices[3] = 
     {
-        ccLog::Error("[Item picking] Invalid point index!");
-        return;
+        cloud->getPoint(summitsIndexes->i[0]),
+        cloud->getPoint(summitsIndexes->i[1]),
+        cloud->getPoint(summitsIndexes->i[2])
+    };
+    const CCVector2i clickedPoint(x, y);
+    CCVector3 clickedPoint3D = m_associatedWin->backprojectPointOnTriangle(clickedPoint, *(triangleVertices[0]), *(triangleVertices[1]), *(triangleVertices[2]));
+    unsigned nearestSummitIndex = 0;
+    float nearestDistance = CCVector3::vdistance(clickedPoint3D.u, triangleVertices[0]->u);
+    for (unsigned i = 1; i < 3; i++)
+    {
+        float tempDistance = CCVector3::vdistance(clickedPoint3D.u, triangleVertices[i]->u);
+        if (tempDistance < nearestDistance)
+        {
+            nearestDistance = tempDistance;
+            nearestSummitIndex = i;
+        }
     }
+    unsigned pointIndex = summitsIndexes->i[nearestSummitIndex];
 
     //如果cloud中不存在颜色信息，则添加之
     //if (!cloud->hasColors())
@@ -572,7 +649,7 @@ void ccPointPropertiesDlg::processPickedTriangle(ccMesh* mesh, unsigned triangle
     {
     case MARK_POINT:
         assert(mCurrentMarkedPoint);
-        mCurrentMarkedPoint->setPoint(cloud, pointIndex);
+        mCurrentMarkedPoint->setPoint(mesh, pointIndex);
         if (m_associatedWin)
         {
             mCurrentMarkedPoint->setPosition((float)(x+20)/(float)m_associatedWin->width(),(float)(y+20)/(float)m_associatedWin->height());
@@ -595,7 +672,19 @@ void ccPointPropertiesDlg::processPickedTriangle(ccMesh* mesh, unsigned triangle
         }
         break;
     case MARK_AREA:
-        //TODO
+        assert(mCurrentMarkedArea);
+        mCurrentMarkedArea->setShortestPathComputer(mShortestPathComputer);
+        mCurrentMarkedArea->addPoint(mesh, pointIndex);
+        if (m_associatedWin)
+        {
+            if (mCurrentMarkedArea->size() == 1)
+            {
+                mCurrentMarkedArea->setPosition((float)(x+20)/(float)m_associatedWin->width(),(float)(y+20)/(float)m_associatedWin->height());
+                m_associatedWin->addToOwnDB(mCurrentMarkedArea);
+            }
+            //实时显示该MarkedLine
+            m_associatedWin->redraw();
+        }
         break;
     default:
         ccLog::Error("[Mark operation] Mark mode invalid!");
@@ -638,7 +727,9 @@ void ccPointPropertiesDlg::addMarkedObjectToDB(const QString &markedTypeName, co
         mCurrentMarkedLine = new MarkedLine();
         break;
     case MARK_AREA:
-        //TODO
+        currentMarkedObject = mCurrentMarkedArea;
+        //重新生成MarkedObject
+        mCurrentMarkedArea = new MarkedArea();
         break;
     default:
         ccLog::Error("[Add mark object to db] Mark mode invalid!");
@@ -703,6 +794,30 @@ void ccPointPropertiesDlg::ensureMarkedPointTreeRootExist()
 
 void ccPointPropertiesDlg::onMarkDone()
 {
+    switch(m_pickingMode)
+    {
+    case MARK_POINT:
+        if (mCurrentMarkedPoint->size() == 0)
+        {
+            return;
+        }
+        break;
+    case MARK_LINE:
+        if (mCurrentMarkedLine->size() == 0)
+        {
+            return;
+        }
+        break;
+    case MARK_AREA:
+        if (mCurrentMarkedArea->size() == 0)
+        {
+            return;
+        }
+        break;
+    default:
+        return;
+    }
+
     //弹出设置标记属性对话框
     if (!mSetMarkedObjectPropertyDlg)
     {

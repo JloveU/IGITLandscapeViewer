@@ -1041,6 +1041,10 @@ CC_FILE_ERROR ObjFilter::loadFile(QString filename, ccHObject& container, LoadPa
 			else
 				vertices->setEnabled(false);
 
+            //Added by yuqiang on 2015/10/21
+            //生成顶点邻域点索引
+            baseMesh->createIndexs();
+
 			container.addChild(baseMesh);
 		}
 

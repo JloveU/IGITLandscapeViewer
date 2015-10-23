@@ -26,6 +26,7 @@
 #include "qCC_db.h"
 #include "ccGenericMesh.h"
 #include "ccMaterial.h"
+#include <QVector>
 
 //! Triangular mesh
 class QCC_DB_LIB_API ccMesh : public ccGenericMesh
@@ -440,6 +441,23 @@ protected:
 	typedef GenericChunkedArray<3,int> triangleNormalsIndexesSet;
 	//! Mesh normals indexes (per-triangle)
 	triangleNormalsIndexesSet* m_triNormalIndexes;
+
+    //Added by yuqiang on 2015/10/21
+    //顶点邻域点索引
+    QVector< QVector<unsigned> > mVertVertIndexs;
+    //顶点所属三角面片索引
+    QVector< QVector<unsigned> > mVertTriIndexs;
+    //顶点是否为边界点
+    QVector< bool > mVertIsBondaryFlags;
+public:
+    //生成mVertVertIndexs、mVertTriIndexs、mVertIsBondaryFlags
+    void createIndexs();
+    //获取某顶点的邻域点索引
+    const QVector<unsigned> & getVertVertIndexs(const unsigned pointIndex) const;
+    //获取某顶点所属三角面片索引
+    const QVector<unsigned> & getVertTriIndexs(const unsigned pointIndex) const;
+    //获取某顶点的是否边界点属性
+    bool isBoundaryVertex(const unsigned pointIndex) const;
 };
 
 #endif //CC_MESH_HEADER
