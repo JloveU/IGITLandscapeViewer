@@ -44,6 +44,7 @@
 #include "ccProgressDialog.h"
 
 #include "MarkedObject.h"
+#include "SetMarkedObjectBagTypeDlg.h"
 
 ccPointPropertiesDlg::ccPointPropertiesDlg(QWidget* parent, ccDBRoot *ccRoot)
 	: ccPointPickingGenericInterface(parent)
@@ -57,6 +58,7 @@ ccPointPropertiesDlg::ccPointPropertiesDlg(QWidget* parent, ccDBRoot *ccRoot)
     , mLastMarkedObject(NULL)
     , mShortestPathComputer(NULL)
     , mCurrentMarkedArea(NULL)
+    , mCurrentMarkedObjectBag(NULL)
 {
 	setupUi(this);
 	setWindowFlags(Qt::FramelessWindowHint |Qt::Tool);
@@ -64,6 +66,7 @@ ccPointPropertiesDlg::ccPointPropertiesDlg(QWidget* parent, ccDBRoot *ccRoot)
     connect(markPointButton,		    SIGNAL(clicked()), this, SLOT(onActivatePointMarking()));
     connect(markLineButton,		        SIGNAL(clicked()), this, SLOT(onActivateLineMarking()));
     connect(markAreaButton,	  	        SIGNAL(clicked()), this, SLOT(onActivateAreaMarking()));
+    connect(markObjectBagButton,	  	SIGNAL(clicked()), this, SLOT(onActivateObjectBagMarking()));
     connect(markUndoButton,	  	        SIGNAL(clicked()), this, SLOT(onMarkUndo()));
     connect(markRedoButton,	  	        SIGNAL(clicked()), this, SLOT(onMarkRedo()));
     connect(markDoneButton,	  	        SIGNAL(clicked()), this, SLOT(onMarkDone()));
@@ -170,6 +173,7 @@ void ccPointPropertiesDlg::onClose()
 {
     onCancelLineMarking();
     onCancelAreaMarking();
+    onCancelObjectBagMarking();
 
     //将所有标记物体的2D标签隐藏
     if (mCurrentMarkedPoint)
@@ -203,9 +207,11 @@ void ccPointPropertiesDlg::onActivatePointMarking()
     markPointButton->setDown(true);
     markLineButton->setDown(false);
     markAreaButton->setDown(false);
+    markObjectBagButton->setDown(false);
 
     onCancelLineMarking();
     onCancelAreaMarking();
+    onCancelObjectBagMarking();
 
     if (mLastMarkedObject)
     {
@@ -227,8 +233,10 @@ void ccPointPropertiesDlg::onActivateLineMarking()
     markPointButton->setDown(false);
     markLineButton->setDown(true);
     markAreaButton->setDown(false);
+    markObjectBagButton->setDown(false);
 
     onCancelAreaMarking();
+    onCancelObjectBagMarking();
 
     if (mLastMarkedObject)
     {
@@ -250,8 +258,10 @@ void ccPointPropertiesDlg::onActivateAreaMarking()
     markPointButton->setDown(false);
     markLineButton->setDown(false);
     markAreaButton->setDown(true);
+    markObjectBagButton->setDown(false);
 
     onCancelLineMarking();
+    onCancelObjectBagMarking();
 
     if (mLastMarkedObject)
     {
@@ -265,6 +275,42 @@ void ccPointPropertiesDlg::onActivateAreaMarking()
     }
 
     mCurrentMarkedArea = new MarkedArea();
+}
+
+void ccPointPropertiesDlg::onActivateObjectBagMarking()
+{
+    m_pickingMode = MARK_OBJECT_BAG;
+    markPointButton->setDown(false);
+    markLineButton->setDown(false);
+    markAreaButton->setDown(false);
+    markObjectBagButton->setDown(true);
+
+    onCancelLineMarking();
+    onCancelAreaMarking();
+
+    if (mLastMarkedObject)
+    {
+        mLastMarkedObject->setSelected(false);
+    }
+
+    if (m_associatedWin)
+    {
+        m_associatedWin->setInteractionMode(ccGLWindow::TRANSFORM_CAMERA);
+        m_associatedWin->updateGL();
+    }
+
+    mCurrentMarkedObjectBag = new MarkedObjectBag(m_associatedWin);
+    SetMarkedObjectBagTypeDlg *setMarkedObjectBagTypeDlg = new SetMarkedObjectBagTypeDlg(parentWidget());
+    setMarkedObjectBagTypeDlg->exec(); //此处用exec()而不是show()，只有在对话框关闭后exec()函数才会返回
+    mCurrentMarkedObjectBag->setType(setMarkedObjectBagTypeDlg->getMarkedObjectBagType());
+    if (mCurrentMarkedObjectBag->getType() == MarkedObjectBag::LINE)
+    {
+        mCurrentMarkedObjectBag->addObject(new MarkedLine());
+    }
+    if (mCurrentMarkedObjectBag->getType() == MarkedObjectBag::AREA)
+    {
+        mCurrentMarkedObjectBag->addObject(new MarkedArea());
+    }
 }
 
 void ccPointPropertiesDlg::onMarkUndo()
@@ -282,6 +328,14 @@ void ccPointPropertiesDlg::onMarkUndo()
     case MARK_AREA:
         assert(mCurrentMarkedArea);
         mCurrentMarkedArea->undo();
+        if (m_associatedWin)
+        {
+            m_associatedWin->redraw();
+        }
+        break;
+    case MARK_OBJECT_BAG:
+        assert(mCurrentMarkedObjectBag);
+        mCurrentMarkedObjectBag->undo();
         if (m_associatedWin)
         {
             m_associatedWin->redraw();
@@ -305,6 +359,14 @@ void ccPointPropertiesDlg::onMarkRedo()
     case MARK_AREA:
         assert(mCurrentMarkedArea);
         mCurrentMarkedArea->redo();
+        if (m_associatedWin)
+        {
+            m_associatedWin->redraw();
+        }
+        break;
+    case MARK_OBJECT_BAG:
+        assert(mCurrentMarkedObjectBag);
+        mCurrentMarkedObjectBag->redo();
         if (m_associatedWin)
         {
             m_associatedWin->redraw();
@@ -345,6 +407,16 @@ void ccPointPropertiesDlg::onCancelAreaMarking()
     }
 
     mCurrentMarkedArea->clear();
+}
+
+void ccPointPropertiesDlg::onCancelObjectBagMarking()
+{
+    if (!mCurrentMarkedObjectBag)
+    {
+        return;
+    }
+
+    mCurrentMarkedObjectBag->clear();
 }
 
 void ccPointPropertiesDlg::activatePointPropertiesDisplay()
@@ -667,7 +739,7 @@ void ccPointPropertiesDlg::processPickedTriangle(ccMesh* mesh, unsigned triangle
                 mCurrentMarkedLine->setPosition((float)(x+20)/(float)m_associatedWin->width(),(float)(y+20)/(float)m_associatedWin->height());
                 m_associatedWin->addToOwnDB(mCurrentMarkedLine);
             }
-            //实时显示该MarkedLine
+            //实时显示
             m_associatedWin->redraw();
         }
         break;
@@ -682,8 +754,47 @@ void ccPointPropertiesDlg::processPickedTriangle(ccMesh* mesh, unsigned triangle
                 mCurrentMarkedArea->setPosition((float)(x+20)/(float)m_associatedWin->width(),(float)(y+20)/(float)m_associatedWin->height());
                 m_associatedWin->addToOwnDB(mCurrentMarkedArea);
             }
-            //实时显示该MarkedLine
+            //实时显示
             m_associatedWin->redraw();
+        }
+        break;
+    case MARK_OBJECT_BAG:
+        assert(mCurrentMarkedObjectBag);
+        switch(mCurrentMarkedObjectBag->getType())
+        {
+        case MarkedObjectBag::POINT:
+            MarkedPoint *markedPoint;
+            markedPoint = new MarkedPoint();
+            markedPoint->setPoint(mesh, pointIndex);
+            markedPoint->setPosition((float)(x+20)/(float)m_associatedWin->width(),(float)(y+20)/(float)m_associatedWin->height());
+            mCurrentMarkedObjectBag->addObject(markedPoint);
+            break;
+        case MarkedObjectBag::LINE:
+            assert(mCurrentMarkedObjectBag->size() > 0);
+            MarkedLine *markedLine;
+            markedLine = dynamic_cast<MarkedLine*>(mCurrentMarkedObjectBag->getLatestObject());
+            markedLine->setShortestPathComputer(mShortestPathComputer);
+            markedLine->addPoint(mesh, pointIndex);
+            if (markedLine->size() == 1)
+            {
+                markedLine->setPosition((float)(x+20)/(float)m_associatedWin->width(),(float)(y+20)/(float)m_associatedWin->height());
+            }
+            m_associatedWin->redraw();
+            break;
+        case MarkedObjectBag::AREA:
+            assert(mCurrentMarkedObjectBag->size() > 0);
+            MarkedArea *markedArea;
+            markedArea = dynamic_cast<MarkedArea*>(mCurrentMarkedObjectBag->getLatestObject());
+            markedArea->setShortestPathComputer(mShortestPathComputer);
+            markedArea->addPoint(mesh, pointIndex);
+            if (markedArea->size() == 1)
+            {
+                markedArea->setPosition((float)(x+20)/(float)m_associatedWin->width(),(float)(y+20)/(float)m_associatedWin->height());
+            }
+            m_associatedWin->redraw();
+            break;
+        default:
+            assert(false);
         }
         break;
     default:
@@ -730,6 +841,19 @@ void ccPointPropertiesDlg::addMarkedObjectToDB(const QString &markedTypeName, co
         currentMarkedObject = mCurrentMarkedArea;
         //重新生成MarkedObject
         mCurrentMarkedArea = new MarkedArea();
+        break;
+    case MARK_OBJECT_BAG:
+        currentMarkedObject = mCurrentMarkedObjectBag;
+        //重新生成MarkedObjectBag
+        mCurrentMarkedObjectBag = new MarkedObjectBag(m_associatedWin, mCurrentMarkedObjectBag->getType());
+        if (mCurrentMarkedObjectBag->getType() == MarkedObjectBag::LINE)
+        {
+            mCurrentMarkedObjectBag->addObject(new MarkedLine());
+        }
+        if (mCurrentMarkedObjectBag->getType() == MarkedObjectBag::AREA)
+        {
+            mCurrentMarkedObjectBag->addObject(new MarkedArea());
+        }
         break;
     default:
         ccLog::Error("[Add mark object to db] Mark mode invalid!");
@@ -812,6 +936,39 @@ void ccPointPropertiesDlg::onMarkDone()
         if (mCurrentMarkedArea->size() == 0)
         {
             return;
+        }
+        break;
+    case MARK_OBJECT_BAG:
+        if (mCurrentMarkedObjectBag->size() == 0)
+        {
+            return;
+        }
+        switch(mCurrentMarkedObjectBag->getType())
+        {
+        case MarkedObjectBag::POINT:
+            break;
+        case MarkedObjectBag::LINE:
+            MarkedLine *markedLine;
+            markedLine = dynamic_cast<MarkedLine*>(mCurrentMarkedObjectBag->getLatestObject());
+            if (markedLine->size() != 0) //此情况下点击完成时在bag中创建新的line，否则将bag添加到数据库
+            {
+                mCurrentMarkedObjectBag->addObject(new MarkedLine());
+                return;
+            }
+            mCurrentMarkedObjectBag->removeLatestObject(); //去掉新添加的空line
+            break;
+        case MarkedObjectBag::AREA:
+            MarkedArea *markedArea;
+            markedArea = dynamic_cast<MarkedArea*>(mCurrentMarkedObjectBag->getLatestObject());
+            if (markedArea->size() != 0) //此情况下点击完成时在bag中创建新的line，否则将bag添加到数据库
+            {
+                mCurrentMarkedObjectBag->addObject(new MarkedArea());
+                return;
+            }
+            mCurrentMarkedObjectBag->removeLatestObject(); //去掉新添加的空area
+            break;
+        default:
+            assert(false);
         }
         break;
     default:

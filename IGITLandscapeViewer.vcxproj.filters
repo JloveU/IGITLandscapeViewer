@@ -722,6 +722,18 @@
     <ClCompile Include="MarkedArea.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MarkedObjectBag.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SetMarkedObjectBagTypeDlg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_SetMarkedObjectBagTypeDlg.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_SetMarkedObjectBagTypeDlg.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="mainwindow.h">
@@ -908,6 +920,12 @@
       <Filter>Form Files</Filter>
     </CustomBuild>
     <CustomBuild Include="BoostGraphInitThread.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ui_templates\setMarkedObjectBagTypeDlg.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="SetMarkedObjectBagTypeDlg.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
   </ItemGroup>
@@ -1307,6 +1325,12 @@
     </ClInclude>
     <ClInclude Include="MarkedArea.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MarkedObjectBag.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_setMarkedObjectBagTypeDlg.h">
+      <Filter>Generated Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

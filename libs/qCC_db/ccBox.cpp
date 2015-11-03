@@ -30,6 +30,13 @@ ccBox::ccBox(const CCVector3& dims, const ccGLMatrix* transMat/*= 0*/, QString n
 
 bool ccBox::buildUp()
 {
+    //Added by yuqiang on 2015/11/04 clear mesh before rebuild
+    if (!init(24, false, 12, 6))
+    {
+        ccLog::Error("[ccBox::buildUp] Init error");
+        return false;
+    }
+
 	//upper plane
 	ccGLMatrix upperMat;
 	upperMat.getTranslation()[2] = static_cast<float>(m_dims.z)/2;
@@ -93,4 +100,18 @@ bool ccBox::fromFile_MeOnly(QFile& in, short dataVersion, int flags)
 	ccSerializationHelper::CoordsFromDataStream(inStream,flags,m_dims.u,3);
 
 	return true;
+}
+
+void ccBox::setDimensions(const CCVector3& dims)
+{
+    if (m_dims.x == dims.x && m_dims.y == dims.y && m_dims.z == dims.z)
+    {
+        return;
+    }
+
+    assert(dims.x > 0 && dims.y > 0 && dims.z > 0);
+    m_dims = dims;
+
+    buildUp();
+    applyTransformationToVertices();
 }

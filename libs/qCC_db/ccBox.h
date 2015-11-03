@@ -58,6 +58,9 @@ public:
 	//! Returns box dimensions
 	const CCVector3& getDimensions() const { return m_dims; }
 
+    //Added by yuqiang on 2015/11/04 set box dimensions
+    void setDimensions(const CCVector3& dims);
+
 protected:
 
 	//inherited from ccGenericPrimitive

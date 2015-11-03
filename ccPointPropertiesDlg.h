@@ -35,6 +35,7 @@ class ccHObject;
 #include "MarkedObject.h"
 #include "ccMesh.h"
 #include "MarkedArea.h"
+#include "MarkedObjectBag.h"
 
 //! Dialog for simple point picking (information, distance, etc.)
 class ccPointPropertiesDlg : public ccPointPickingGenericInterface, public Ui::PointPropertiesDlg
@@ -61,11 +62,13 @@ protected slots:
     void onActivatePointMarking();
     void onActivateLineMarking();
     void onActivateAreaMarking();
+    void onActivateObjectBagMarking();
     void onMarkUndo();
     void onMarkRedo();
     void onMarkDone();
     void onCancelLineMarking();
     void onCancelAreaMarking();
+    void onCancelObjectBagMarking();
 	void onClose();
 	void activatePointPropertiesDisplay();
 	void activateDistanceDisplay();
@@ -101,7 +104,8 @@ protected:
 		RECT_ZONE,
         MARK_POINT,
         MARK_LINE,
-        MARK_AREA
+        MARK_AREA,
+        MARK_OBJECT_BAG
 	};
 
 	//inherited from ccPointPickingGenericInterface
@@ -148,6 +152,9 @@ protected:
 
     //当前标记的线
     MarkedArea *mCurrentMarkedArea;
+
+    //当前标记的ObjectBag
+    MarkedObjectBag *mCurrentMarkedObjectBag;
 
 };
 

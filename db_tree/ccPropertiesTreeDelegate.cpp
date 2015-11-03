@@ -77,6 +77,7 @@
 #include "MarkedPoint.h"
 #include "MarkedLine.h"
 #include "MarkedArea.h"
+#include "MarkedObjectBag.h"
 
 // Default 'None' string
 static const QString c_noneString = QString("None");
@@ -1000,6 +1001,27 @@ void ccPropertiesTreeDelegate::fillWithMarkedObject(MarkedObject* _obj)
         //拟合平面法向量
         QVector3D projectPlaneNormal = markedArea->getProjectPlaneNormal();
         appendRow(ITEM(QString::fromAscii("拟合平面法向量")), ITEM(QString("X: %1\nY: %2\nZ: %3").arg(QString::number(projectPlaneNormal.x())).arg(QString::number(projectPlaneNormal.y())).arg(QString::number(projectPlaneNormal.z()))));
+        return;
+    }
+    else if (MarkedObjectBag *markedObjectBag = dynamic_cast<MarkedObjectBag*>(_obj))
+    {
+        //包类型
+        QString typeString;
+        switch(markedObjectBag->getType())
+        {
+        case MarkedObjectBag::POINT:
+            typeString = "Point";
+            break;
+        case MarkedObjectBag::LINE:
+            typeString = "Line";
+            break;
+        case MarkedObjectBag::AREA:
+            typeString = "Area";
+            break;
+        }
+        appendRow(ITEM(QString::fromAscii("包类型")), ITEM(typeString));
+
+        appendRow(ITEM(QString::fromAscii("子物体数量")), ITEM(QString::number(markedObjectBag->size())));
         return;
     }
 }

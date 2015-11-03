@@ -126,6 +126,7 @@
         <file>images/smallMarkDone.png</file>
         <file>images/smallMarkRedo.png</file>
         <file>images/smallMarkUndo.png</file>
+        <file>images/smallMarkObjectBag.png</file>
     </qresource>
     <qresource prefix="/CC/Icons">
         <file>images/icon/cc_viewer_icon_16.png</file>

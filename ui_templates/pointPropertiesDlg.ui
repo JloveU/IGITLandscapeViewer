@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>170</width>
+    <width>200</width>
     <height>26</height>
    </rect>
   </property>
@@ -65,6 +65,23 @@
      <property name="icon">
       <iconset resource="../mainwindow.qrc">
        <normaloff>:/CC/images/smallMarkArea.png</normaloff>:/CC/images/smallMarkArea.png</iconset>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QToolButton" name="markObjectBagButton">
+     <property name="toolTip">
+      <string comment="Mark object bag">Select a series of objects in a bag</string>
+     </property>
+     <property name="statusTip">
+      <string comment="Mark object bag">Select a series of objects in a bag</string>
+     </property>
+     <property name="text">
+      <string>...</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../mainwindow.qrc">
+       <normaloff>:/CC/images/smallMarkObjectBag.png</normaloff>:/CC/images/smallMarkObjectBag.png</iconset>
      </property>
     </widget>
    </item>

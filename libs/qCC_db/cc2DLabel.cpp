@@ -142,7 +142,13 @@ void cc2DLabel::setPosition(float x, float y)
 bool cc2DLabel::move2D(int x, int y, int dx, int dy, int screenWidth, int screenHeight)
 {
 	assert(screenHeight > 0 && screenWidth > 0);
-	
+
+    //added by yuqiang on 2015/10/31 在多个2DLabel同时显示时，鼠标拖动只移动鼠标所在位置的2DLabel
+    if (!m_labelROI.contains(x-m_lastScreenPos[0],(screenHeight-1-y)-m_lastScreenPos[1]))
+    {
+        return true;
+    }
+
 	m_screenPos[0] += static_cast<float>(dx)/screenWidth;
 	m_screenPos[1] += static_cast<float>(dy)/screenHeight;
 

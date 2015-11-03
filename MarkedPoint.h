@@ -27,13 +27,16 @@ public:
     virtual void drawMeOnly3D(CC_DRAW_CONTEXT& context);
 
     //inherited from cc2DLabel
-    virtual void drawMeOnly2D(CC_DRAW_CONTEXT& context);
-
-    //inherited from cc2DLabel
     QStringList getLabelContent(int precision);
 
     //获取点坐标
     QVector3D getPoint();
+
+    //Inherited from MarkedObject
+    bool undo();
+
+    //Inherited from MarkedObject
+    bool redo();
 
 };
 

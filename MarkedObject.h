@@ -28,19 +28,31 @@ public:
 
     MarkedObject(QString name);
 
-    void setMarkedType(ccHObject *markedType);
+    virtual void setMarkedType(ccHObject *markedType);
 
     ccHObject* getMarkedType();
 
-    void setColor(const QColor &color);
+    virtual void setColor(const QColor &color); //前面加virtual关键字修饰可以使得由子类指针强制转换得到的父类指针调用该方法时实际调用子类同名方法
 
     QColor getColor();
 
     //inherited from cc2DLabel
-    inline virtual void setSelected(bool state);
+    virtual inline void setSelected(bool state);
 
     //inherited from cc2DLabel
-    QStringList getLabelContent(int precision);
+    void drawMeOnly2D(CC_DRAW_CONTEXT& context);
+
+    //inherited from cc2DLabel
+    virtual QStringList getLabelContent(int precision) = 0;
+
+    //inherited from cc2DLabel
+    //virtual bool move2D(int x, int y, int dx, int dy, int screenWidth, int screenHeight);
+
+    //撤销一步
+    virtual bool undo() = 0;
+
+    //重做一步
+    virtual bool redo() = 0;
 };
 
 

@@ -106,9 +106,6 @@ public:
     virtual void drawMeOnly3D(CC_DRAW_CONTEXT& context);
 
     //inherited from cc2DLabel
-    virtual void drawMeOnly2D(CC_DRAW_CONTEXT& context);
-
-    //inherited from cc2DLabel
     QStringList getLabelContent(int precision);
 
     //获取中心点坐标
@@ -126,11 +123,11 @@ public:
     //设置最短路径计算器
     void setShortestPathComputer(ShortestPathComputer *shortestPathComputer);
 
-    //撤销一步
-    void undo();
+    //Inherited from MarkedObject
+    bool undo();
 
-    //重做一步
-    void redo();
+    //Inherited from MarkedObject
+    bool redo();
 
 protected:
 
