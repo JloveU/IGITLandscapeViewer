@@ -48,7 +48,7 @@ private:
 
 public:
 
-    MarkedObjectBag(ccGLWindow *contextWin, const Type type = POINT, const QString &name = DEFAULT_NAME);
+    MarkedObjectBag(ccGLWindow *contextWin, const Type type = POINT, const QString &name = "UntitledObject");
 
     void setType(const Type type);
 

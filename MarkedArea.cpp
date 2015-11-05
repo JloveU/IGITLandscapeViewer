@@ -7,17 +7,6 @@
 
 using namespace Eigen;
 
-MarkedArea::MarkedArea()
-    : MarkedObject()
-    , mShortestPathComputer(NULL)
-    , mFillPathLength(0.0)
-    , mMarkedPathLength(0.0)
-    , mArea(0.0)
-    , mCurrentPositionInHistory(-1)
-{
-    mColor = QColor(0, 255, 0);
-}
-
 MarkedArea::MarkedArea(QString name)
     : MarkedObject(name)
     , mShortestPathComputer(NULL)
@@ -26,7 +15,7 @@ MarkedArea::MarkedArea(QString name)
     , mArea(0.0)
     , mCurrentPositionInHistory(-1)
 {
-    mColor = QColor(0, 255, 0);
+    mColor = QColor(255, 0, 255);
 }
 
 bool MarkedArea::addPoint(ccMesh* mesh, unsigned pointIndex)
@@ -248,12 +237,12 @@ void MarkedArea::clear()
     mArea = 0.0;
 }
 
-static CCVector3 boxPointMarkerDimsBig(2.0, 2.0, 2.0);
-static CCVector3 boxPointMarkerDimsSmall(1.0, 1.0, 1.0);
-
-//copied from cc2DLabel.cpp
-//unit point marker
-static QSharedPointer<ccBox> c_unitPointMarker(0);
+static CCVector3 staticBoxPointMarkerDimsBig(2.0, 2.0, 2.0);
+static CCVector3 staticBoxPointMarkerDimsSmall(0.66, 0.66, 0.66);
+static QColor staticBoundaryPointMarkerColor(0, 255, 0); //边界上的顶点颜色固定为绿色，边界点之间的连线颜色、内部顶点颜色和内部三角面片颜色为mColor（或其半透明颜色）
+static QSharedPointer<ccBox> staticUnitPointMarkerBig(0);
+static QSharedPointer<ccBox> staticUnitPointMarkerSmallBoundary(0);
+static QSharedPointer<ccBox> staticUnitPointMarkerSmallInner(0);
 
 void MarkedArea::drawMeOnly3D(CC_DRAW_CONTEXT& context)
 {
@@ -280,7 +269,6 @@ void MarkedArea::drawMeOnly3D(CC_DRAW_CONTEXT& context)
     //glEnd();
     //glPopAttrib();
 
-
     //画区域内的所有三角形（半透明）
     const unsigned triangleNum = mTriangleIndexs.size();
     if (triangleNum > 0)
@@ -304,7 +292,7 @@ void MarkedArea::drawMeOnly3D(CC_DRAW_CONTEXT& context)
         glPopAttrib();
     }
 
-    ////画控制点之间的连线（直线）
+    ////画边界顶点之间的连线
 	const float c_sizeFactor = 10.0f;
 	bool loop = false;
     size_t count = m_points.size();
@@ -313,7 +301,7 @@ void MarkedArea::drawMeOnly3D(CC_DRAW_CONTEXT& context)
     glEnable(GL_LINE_SMOOTH);
     glLineWidth(c_sizeFactor);
     //we draw the segments
-    ccGL::Color3v(ccColor::Rgba(mColor.red(), mColor.green(), mColor.blue(), mColor.alpha()).rgba);
+    ccGL::Color3v(ccColor::Rgba(staticBoundaryPointMarkerColor.red(), staticBoundaryPointMarkerColor.green(), staticBoundaryPointMarkerColor.blue(), staticBoundaryPointMarkerColor.alpha()).rgba);
     glBegin(GL_LINES);
     for (unsigned i=0; i<count; i++)
     {
@@ -347,24 +335,38 @@ void MarkedArea::drawMeOnly3D(CC_DRAW_CONTEXT& context)
     //显示小球标记
     //display point marker as spheres
 	{
-		if (!c_unitPointMarker)
-		{
-			c_unitPointMarker = QSharedPointer<ccBox>(new ccBox(boxPointMarkerDimsBig, 0, "PointMarker"));
-            c_unitPointMarker->showColors(true);
-			c_unitPointMarker->setVisible(true);
-			c_unitPointMarker->setEnabled(true);
-		}
+        if (!staticUnitPointMarkerBig)
+        {
+            staticUnitPointMarkerBig = QSharedPointer<ccBox>(new ccBox(staticBoxPointMarkerDimsBig, 0, "PointMarker"));
+            staticUnitPointMarkerBig->showColors(true);
+            staticUnitPointMarkerBig->setVisible(true);
+            staticUnitPointMarkerBig->setEnabled(true);
+            staticUnitPointMarkerBig->setTempColor(ccColor::Rgb(staticBoundaryPointMarkerColor.red(), staticBoundaryPointMarkerColor.green(), staticBoundaryPointMarkerColor.blue()));
+        }
+        if (!staticUnitPointMarkerSmallBoundary)
+        {
+            staticUnitPointMarkerSmallBoundary = QSharedPointer<ccBox>(new ccBox(staticBoxPointMarkerDimsSmall, 0, "PointMarker"));
+            staticUnitPointMarkerSmallBoundary->showColors(true);
+            staticUnitPointMarkerSmallBoundary->setVisible(true);
+            staticUnitPointMarkerSmallBoundary->setEnabled(true);
+            staticUnitPointMarkerSmallBoundary->setTempColor(ccColor::Rgb(staticBoundaryPointMarkerColor.red(), staticBoundaryPointMarkerColor.green(), staticBoundaryPointMarkerColor.blue()));
+        }
+        if (!staticUnitPointMarkerSmallInner)
+        {
+            staticUnitPointMarkerSmallInner = QSharedPointer<ccBox>(new ccBox(staticBoxPointMarkerDimsSmall, 0, "PointMarker"));
+            staticUnitPointMarkerSmallInner->showColors(true);
+            staticUnitPointMarkerSmallInner->setVisible(true);
+            staticUnitPointMarkerSmallInner->setEnabled(true);
+        }
+        staticUnitPointMarkerSmallInner->setTempColor(ccColor::Rgb(mColor.red(), mColor.green(), mColor.blue()));
 	
 		//build-up point maker own 'context'
 		CC_DRAW_CONTEXT markerContext = context;
 		markerContext.flags &= (~CC_DRAW_ENTITY_NAMES); //we must remove the 'push name flag' so that the sphere doesn't push its own!
 		markerContext._win = 0;
 
-        //始终显示同一颜色，不管是否选中状态
-        c_unitPointMarker->setTempColor(ccColor::Rgb(mColor.red(), mColor.green(), mColor.blue()));
 
         //显示首尾端点处的小球（大）
-        c_unitPointMarker->setDimensions(boxPointMarkerDimsBig);
         for (unsigned i = 0; i < count; i += (count == 1 ? 1 : count - 1))
         {
             glMatrixMode(GL_MODELVIEW);
@@ -372,12 +374,11 @@ void MarkedArea::drawMeOnly3D(CC_DRAW_CONTEXT& context)
             const CCVector3* P = m_points[i].cloud->getPoint(m_points[i].index);
             ccGL::Translate(P->x,P->y,P->z);
             glScalef(context.labelMarkerSize,context.labelMarkerSize,context.labelMarkerSize);
-            c_unitPointMarker->draw(markerContext);
+            staticUnitPointMarkerBig->draw(markerContext);
             glPopMatrix();
         }
 
         //显示轮廓上除首尾端点之外的小球（小）
-        c_unitPointMarker->setDimensions(boxPointMarkerDimsSmall);
         for (unsigned i = 1; i < count - 1; i++)
         {
             glMatrixMode(GL_MODELVIEW);
@@ -385,7 +386,7 @@ void MarkedArea::drawMeOnly3D(CC_DRAW_CONTEXT& context)
             const CCVector3* P = m_points[i].cloud->getPoint(m_points[i].index);
             ccGL::Translate(P->x,P->y,P->z);
             glScalef(context.labelMarkerSize,context.labelMarkerSize,context.labelMarkerSize);
-            c_unitPointMarker->draw(markerContext);
+            staticUnitPointMarkerSmallBoundary->draw(markerContext);
             glPopMatrix();
         }
         if (mFillPathPoints.size() > 0)
@@ -398,13 +399,12 @@ void MarkedArea::drawMeOnly3D(CC_DRAW_CONTEXT& context)
                 const CCVector3* P = mFillPathPoints[i].cloud->getPoint(mFillPathPoints[i].index);
                 ccGL::Translate(P->x,P->y,P->z);
                 glScalef(context.labelMarkerSize,context.labelMarkerSize,context.labelMarkerSize);
-                c_unitPointMarker->draw(markerContext);
+                staticUnitPointMarkerSmallBoundary->draw(markerContext);
                 glPopMatrix();
             }
         }
 
         //显示内部点处的小球（小）
-        //c_unitPointMarker->setDimensions(boxPointMarkerDimsSmall);
         const unsigned innerPointNum = mInnerPoints.size();
         for (unsigned i = 0; i < innerPointNum; i++)
         {
@@ -413,7 +413,7 @@ void MarkedArea::drawMeOnly3D(CC_DRAW_CONTEXT& context)
             const CCVector3* P = mInnerPoints[i].cloud->getPoint(mInnerPoints[i].index);
             ccGL::Translate(P->x,P->y,P->z);
             glScalef(context.labelMarkerSize,context.labelMarkerSize,context.labelMarkerSize);
-            c_unitPointMarker->draw(markerContext);
+            staticUnitPointMarkerSmallInner->draw(markerContext);
             glPopMatrix();
         }
 	}

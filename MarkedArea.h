@@ -92,9 +92,7 @@ private:
 
 public:
 
-    MarkedArea();
-
-    MarkedArea(QString name);
+    MarkedArea(QString name = "UntitledArea");
 
     //Ìí¼Ó¿ØÖÆµã
     bool addPoint(ccMesh* mesh, unsigned pointIndex);

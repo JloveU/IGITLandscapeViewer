@@ -15,18 +15,12 @@ protected:
     //所属类别，即该点在树状列表中的父节点
     ccHObject *mMarkedType;
 
-    //名称（直接使用ccObject的m_name, setName() 和 getName()）
-    //QString mMarkedName;
-    static const QString DEFAULT_NAME;
-
     //颜色
     QColor mColor;
 
 public:
 
-    MarkedObject();
-
-    MarkedObject(QString name);
+    MarkedObject(QString name = "UntitledObject");
 
     virtual void setMarkedType(ccHObject *markedType);
 

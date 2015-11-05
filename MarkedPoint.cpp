@@ -2,14 +2,10 @@
 #include "ccSphere.h"
 #include "ccGenericGLDisplay.h"
 
-MarkedPoint::MarkedPoint()
-    : MarkedObject()
-{
-}
-
 MarkedPoint::MarkedPoint(QString name)
     : MarkedObject(name)
 {
+    mColor = QColor(0, 0, 255);
 }
 
 void MarkedPoint::setPoint(ccMesh* mesh, unsigned pointIndex)
@@ -33,9 +29,7 @@ bool MarkedPoint::addPoint(ccMesh* mesh, unsigned pointIndex)
     return false;
 }
 
-//copied from cc2DLabel.cpp
-//unit point marker
-static QSharedPointer<ccSphere> c_unitPointMarker(0);
+static QSharedPointer<ccSphere> staticUnitPointMarker(0);
 
 void MarkedPoint::drawMeOnly3D(CC_DRAW_CONTEXT& context)
 {
@@ -57,28 +51,26 @@ void MarkedPoint::drawMeOnly3D(CC_DRAW_CONTEXT& context)
 
 	//display point marker as spheres
 	{
-		if (!c_unitPointMarker)
+		if (!staticUnitPointMarker)
 		{
-			c_unitPointMarker = QSharedPointer<ccSphere>(new ccSphere(1.0f,0,"PointMarker",12));
-            c_unitPointMarker->showColors(true);
-			c_unitPointMarker->setVisible(true);
-			c_unitPointMarker->setEnabled(true);
+			staticUnitPointMarker = QSharedPointer<ccSphere>(new ccSphere(1.0f,0,"PointMarker",12));
+            staticUnitPointMarker->showColors(true);
+			staticUnitPointMarker->setVisible(true);
+			staticUnitPointMarker->setEnabled(true);
 		}
+        staticUnitPointMarker->setTempColor(ccColor::Rgb(mColor.red(), mColor.green(), mColor.blue()));
 	
 		//build-up point maker own 'context'
 		CC_DRAW_CONTEXT markerContext = context;
 		markerContext.flags &= (~CC_DRAW_ENTITY_NAMES); //we must remove the 'push name flag' so that the sphere doesn't push its own!
 		markerContext._win = 0;
 
-        //始终显示同一颜色，不管是否选中状态
-        c_unitPointMarker->setTempColor(ccColor::Rgb(mColor.red(), mColor.green(), mColor.blue()));
-
         glMatrixMode(GL_MODELVIEW);
         glPushMatrix();
         const CCVector3* P = m_points[0].cloud->getPoint(m_points[0].index);
         ccGL::Translate(P->x,P->y,P->z);
         glScalef(context.labelMarkerSize,context.labelMarkerSize,context.labelMarkerSize);
-        c_unitPointMarker->draw(markerContext);
+        staticUnitPointMarker->draw(markerContext);
         glPopMatrix();
 	}
 

@@ -2,22 +2,13 @@
 #include "ccBox.h"
 #include "ccGenericGLDisplay.h"
 
-MarkedLine::MarkedLine()
-    : MarkedObject()
-    , mShortestPathComputer(NULL)
-    , mLineLength(0.0)
-    , mCurrentPositionInHistory(-1)
-{
-    mColor = QColor(0, 255, 0);
-}
-
 MarkedLine::MarkedLine(QString name)
     : MarkedObject(name)
     , mShortestPathComputer(NULL)
     , mLineLength(0.0)
     , mCurrentPositionInHistory(-1)
 {
-    mColor = QColor(0, 255, 0);
+    mColor = QColor(255, 0, 0);
 }
 
 bool MarkedLine::addPoint(ccMesh* mesh, unsigned pointIndex)
@@ -88,12 +79,11 @@ void MarkedLine::clear()
     mLineLength = 0.0;
 }
 
-static CCVector3 boxPointMarkerDimsBig(2.0, 2.0, 2.0);
-static CCVector3 boxPointMarkerDimsSmall(1.0, 1.0, 1.0);
-
-//copied from cc2DLabel.cpp
-//unit point marker
-static QSharedPointer<ccBox> c_unitPointMarker(0);
+static CCVector3 staticBoxPointMarkerDimsBig(2.0, 2.0, 2.0);
+static CCVector3 staticBoxPointMarkerDimsSmall(0.66, 0.66, 0.66);
+static QColor staticPointMarkerColor(0, 255, 0); //顶点固定为绿色，顶点之间的连线颜色为mColor
+static QSharedPointer<ccBox> staticUnitPointMarkerBig(0);
+static QSharedPointer<ccBox> staticUnitPointMarkerSmall(0);
 
 void MarkedLine::drawMeOnly3D(CC_DRAW_CONTEXT& context)
 {
@@ -109,7 +99,7 @@ void MarkedLine::drawMeOnly3D(CC_DRAW_CONTEXT& context)
 		glPushName(getUniqueIDForDisplay());
 	}
 
-    ////画控制点之间的连线（直线）
+    ////画顶点之间的连线
 	const float c_sizeFactor = 10.0f;
 	bool loop = false;
     size_t count = m_points.size();
@@ -133,24 +123,29 @@ void MarkedLine::drawMeOnly3D(CC_DRAW_CONTEXT& context)
     //显示小球标记
     //display point marker as spheres
 	{
-		if (!c_unitPointMarker)
+		if (!staticUnitPointMarkerBig)
 		{
-			c_unitPointMarker = QSharedPointer<ccBox>(new ccBox(boxPointMarkerDimsBig, 0, "PointMarker"));
-            c_unitPointMarker->showColors(true);
-			c_unitPointMarker->setVisible(true);
-			c_unitPointMarker->setEnabled(true);
+			staticUnitPointMarkerBig = QSharedPointer<ccBox>(new ccBox(staticBoxPointMarkerDimsBig, 0, "PointMarker"));
+            staticUnitPointMarkerBig->showColors(true);
+			staticUnitPointMarkerBig->setVisible(true);
+			staticUnitPointMarkerBig->setEnabled(true);
+            staticUnitPointMarkerBig->setTempColor(ccColor::Rgb(staticPointMarkerColor.red(), staticPointMarkerColor.green(), staticPointMarkerColor.blue()));
 		}
+        if (!staticUnitPointMarkerSmall)
+        {
+            staticUnitPointMarkerSmall = QSharedPointer<ccBox>(new ccBox(staticBoxPointMarkerDimsSmall, 0, "PointMarker"));
+            staticUnitPointMarkerSmall->showColors(true);
+            staticUnitPointMarkerSmall->setVisible(true);
+            staticUnitPointMarkerSmall->setEnabled(true);
+            staticUnitPointMarkerSmall->setTempColor(ccColor::Rgb(staticPointMarkerColor.red(), staticPointMarkerColor.green(), staticPointMarkerColor.blue()));
+        }
 	
 		//build-up point maker own 'context'
 		CC_DRAW_CONTEXT markerContext = context;
 		markerContext.flags &= (~CC_DRAW_ENTITY_NAMES); //we must remove the 'push name flag' so that the sphere doesn't push its own!
 		markerContext._win = 0;
 
-        //始终显示同一颜色，不管是否选中状态
-        c_unitPointMarker->setTempColor(ccColor::Rgb(mColor.red(), mColor.green(), mColor.blue()));
-
         //显示首尾端点处的小球（大）
-        c_unitPointMarker->setDimensions(boxPointMarkerDimsBig);
         for (unsigned i = 0; i < count; i += (count == 1 ? 1 : count - 1))
         {
             glMatrixMode(GL_MODELVIEW);
@@ -158,12 +153,11 @@ void MarkedLine::drawMeOnly3D(CC_DRAW_CONTEXT& context)
             const CCVector3* P = m_points[i].cloud->getPoint(m_points[i].index);
             ccGL::Translate(P->x,P->y,P->z);
             glScalef(context.labelMarkerSize,context.labelMarkerSize,context.labelMarkerSize);
-            c_unitPointMarker->draw(markerContext);
+            staticUnitPointMarkerBig->draw(markerContext);
             glPopMatrix();
         }
 
         //显示中间的小球（小）
-        c_unitPointMarker->setDimensions(boxPointMarkerDimsSmall);
         for (unsigned i = 1; i < count - 1; i++)
         {
             glMatrixMode(GL_MODELVIEW);
@@ -171,7 +165,7 @@ void MarkedLine::drawMeOnly3D(CC_DRAW_CONTEXT& context)
             const CCVector3* P = m_points[i].cloud->getPoint(m_points[i].index);
             ccGL::Translate(P->x,P->y,P->z);
             glScalef(context.labelMarkerSize,context.labelMarkerSize,context.labelMarkerSize);
-            c_unitPointMarker->draw(markerContext);
+            staticUnitPointMarkerSmall->draw(markerContext);
             glPopMatrix();
         }
 	}

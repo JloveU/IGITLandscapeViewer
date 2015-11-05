@@ -40,9 +40,7 @@ private:
 
 public:
 
-    MarkedLine();
-
-    MarkedLine(QString name);
+    MarkedLine(QString name = "UntitledLine");
 
     //Ìí¼Ó¿ØÖÆµã
     bool addPoint(ccMesh* mesh, unsigned pointIndex);

@@ -235,6 +235,7 @@ void ccPointPropertiesDlg::onActivateLineMarking()
     markAreaButton->setDown(false);
     markObjectBagButton->setDown(false);
 
+    onCancelLineMarking();
     onCancelAreaMarking();
     onCancelObjectBagMarking();
 
@@ -261,6 +262,7 @@ void ccPointPropertiesDlg::onActivateAreaMarking()
     markObjectBagButton->setDown(false);
 
     onCancelLineMarking();
+    onCancelAreaMarking();
     onCancelObjectBagMarking();
 
     if (mLastMarkedObject)
@@ -287,6 +289,7 @@ void ccPointPropertiesDlg::onActivateObjectBagMarking()
 
     onCancelLineMarking();
     onCancelAreaMarking();
+    onCancelObjectBagMarking();
 
     if (mLastMarkedObject)
     {

@@ -1,17 +1,6 @@
 #include "MarkedObject.h"
 #include "ccGenericGLDisplay.h"
 
-const QString MarkedObject::DEFAULT_NAME = "Untitled";
-
-MarkedObject::MarkedObject()
-    : cc2DLabel(DEFAULT_NAME)
-    , mMarkedType(NULL)
-    , mColor(255, 0, 0)
-{
-    setSelected(true);
-    setVisible(true);
-}
-
 MarkedObject::MarkedObject(QString name)
     : cc2DLabel(name)
     , mMarkedType(NULL)

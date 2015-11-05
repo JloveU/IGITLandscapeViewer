@@ -10,9 +10,7 @@ class MarkedPoint : public MarkedObject
 
 public:
 
-    MarkedPoint();
-
-    MarkedPoint(QString name);
+    MarkedPoint(QString name = "UntitledPoint");
 
     //…Ë÷√µ„
     void setPoint(ccMesh* mesh, unsigned pointIndex);
