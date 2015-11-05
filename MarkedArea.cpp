@@ -1,5 +1,5 @@
 #include "MarkedArea.h"
-#include "ccSphere.h"
+#include "ccBox.h"
 #include "ccGenericGLDisplay.h"
 #include <Eigen/Dense>
 #include <Eigen/Eigenvalues>
@@ -15,6 +15,7 @@ MarkedArea::MarkedArea()
     , mArea(0.0)
     , mCurrentPositionInHistory(-1)
 {
+    mColor = QColor(0, 255, 0);
 }
 
 MarkedArea::MarkedArea(QString name)
@@ -25,6 +26,7 @@ MarkedArea::MarkedArea(QString name)
     , mArea(0.0)
     , mCurrentPositionInHistory(-1)
 {
+    mColor = QColor(0, 255, 0);
 }
 
 bool MarkedArea::addPoint(ccMesh* mesh, unsigned pointIndex)
@@ -246,9 +248,12 @@ void MarkedArea::clear()
     mArea = 0.0;
 }
 
+static CCVector3 boxPointMarkerDimsBig(2.0, 2.0, 2.0);
+static CCVector3 boxPointMarkerDimsSmall(1.0, 1.0, 1.0);
+
 //copied from cc2DLabel.cpp
 //unit point marker
-static QSharedPointer<ccSphere> c_unitPointMarker(0);
+static QSharedPointer<ccBox> c_unitPointMarker(0);
 
 void MarkedArea::drawMeOnly3D(CC_DRAW_CONTEXT& context)
 {
@@ -344,7 +349,7 @@ void MarkedArea::drawMeOnly3D(CC_DRAW_CONTEXT& context)
 	{
 		if (!c_unitPointMarker)
 		{
-			c_unitPointMarker = QSharedPointer<ccSphere>(new ccSphere(1.0f,0,"PointMarker",12));
+			c_unitPointMarker = QSharedPointer<ccBox>(new ccBox(boxPointMarkerDimsBig, 0, "PointMarker"));
             c_unitPointMarker->showColors(true);
 			c_unitPointMarker->setVisible(true);
 			c_unitPointMarker->setEnabled(true);
@@ -359,7 +364,7 @@ void MarkedArea::drawMeOnly3D(CC_DRAW_CONTEXT& context)
         c_unitPointMarker->setTempColor(ccColor::Rgb(mColor.red(), mColor.green(), mColor.blue()));
 
         //显示首尾端点处的小球（大）
-        c_unitPointMarker->setRadius(1.0);
+        c_unitPointMarker->setDimensions(boxPointMarkerDimsBig);
         for (unsigned i = 0; i < count; i += (count == 1 ? 1 : count - 1))
         {
             glMatrixMode(GL_MODELVIEW);
@@ -371,8 +376,35 @@ void MarkedArea::drawMeOnly3D(CC_DRAW_CONTEXT& context)
             glPopMatrix();
         }
 
+        //显示轮廓上除首尾端点之外的小球（小）
+        c_unitPointMarker->setDimensions(boxPointMarkerDimsSmall);
+        for (unsigned i = 1; i < count - 1; i++)
+        {
+            glMatrixMode(GL_MODELVIEW);
+            glPushMatrix();
+            const CCVector3* P = m_points[i].cloud->getPoint(m_points[i].index);
+            ccGL::Translate(P->x,P->y,P->z);
+            glScalef(context.labelMarkerSize,context.labelMarkerSize,context.labelMarkerSize);
+            c_unitPointMarker->draw(markerContext);
+            glPopMatrix();
+        }
+        if (mFillPathPoints.size() > 0)
+        {
+            unsigned fillPathPointsCount = mFillPathPoints.size();
+            for (unsigned i = 0; i < fillPathPointsCount - 1; i++)
+            {
+                glMatrixMode(GL_MODELVIEW);
+                glPushMatrix();
+                const CCVector3* P = mFillPathPoints[i].cloud->getPoint(mFillPathPoints[i].index);
+                ccGL::Translate(P->x,P->y,P->z);
+                glScalef(context.labelMarkerSize,context.labelMarkerSize,context.labelMarkerSize);
+                c_unitPointMarker->draw(markerContext);
+                glPopMatrix();
+            }
+        }
+
         //显示内部点处的小球（小）
-        c_unitPointMarker->setRadius(0.3);
+        //c_unitPointMarker->setDimensions(boxPointMarkerDimsSmall);
         const unsigned innerPointNum = mInnerPoints.size();
         for (unsigned i = 0; i < innerPointNum; i++)
         {

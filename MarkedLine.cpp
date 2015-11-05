@@ -8,6 +8,7 @@ MarkedLine::MarkedLine()
     , mLineLength(0.0)
     , mCurrentPositionInHistory(-1)
 {
+    mColor = QColor(0, 255, 0);
 }
 
 MarkedLine::MarkedLine(QString name)
@@ -16,6 +17,7 @@ MarkedLine::MarkedLine(QString name)
     , mLineLength(0.0)
     , mCurrentPositionInHistory(-1)
 {
+    mColor = QColor(0, 255, 0);
 }
 
 bool MarkedLine::addPoint(ccMesh* mesh, unsigned pointIndex)
@@ -86,8 +88,8 @@ void MarkedLine::clear()
     mLineLength = 0.0;
 }
 
-CCVector3 boxPointMarkerDimsBig(2.0, 2.0, 2.0);
-CCVector3 boxPointMarkerDimsSmall(1.0, 1.0, 1.0);
+static CCVector3 boxPointMarkerDimsBig(2.0, 2.0, 2.0);
+static CCVector3 boxPointMarkerDimsSmall(1.0, 1.0, 1.0);
 
 //copied from cc2DLabel.cpp
 //unit point marker
