@@ -120,13 +120,6 @@
         <file>images/typeXCoordinate.png</file>
         <file>images/typeYCoordinate.png</file>
         <file>images/typeZCoordinate.png</file>
-        <file>images/smallMarkArea.png</file>
-        <file>images/smallMarkLine.png</file>
-        <file>images/smallMarkPoint.png</file>
-        <file>images/smallMarkDone.png</file>
-        <file>images/smallMarkRedo.png</file>
-        <file>images/smallMarkUndo.png</file>
-        <file>images/smallMarkObjectBag.png</file>
     </qresource>
     <qresource prefix="/CC/Icons">
         <file>images/icon/cc_viewer_icon_16.png</file>
@@ -135,5 +128,16 @@
         <file>images/icon/cc_icon_16.png</file>
         <file>images/icon/cc_icon_32.png</file>
         <file>images/icon/cc_icon_64.png</file>
+    </qresource>
+    <qresource prefix="/MarkObject">
+        <file>images/moMarkPoint.png</file>
+        <file>images/moMarkLine.png</file>
+        <file>images/moMarkArea.png</file>
+        <file>images/moMarkObjectBag.png</file>
+        <file>images/moUndo.png</file>
+        <file>images/moRedo.png</file>
+        <file>images/moDone.png</file>
+        <file>images/moCreate.png</file>
+        <file>images/moAdd.png</file>
     </qresource>
 </RCC>

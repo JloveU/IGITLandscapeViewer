@@ -6,6 +6,7 @@
 #include "ccColorTypes.h"
 #include "ccPointCloud.h"
 #include <QColor>
+#include "ccBBox.h"
 
 class MarkedObject : public cc2DLabel
 {
@@ -17,6 +18,15 @@ protected:
 
     //颜色
     QColor mColor;
+
+    //Bounding-box
+    ccBBox mBBox;
+
+protected:
+
+    //更新Bounding-box，若不传参数，则默认根据m_points计算，否则根据传入的参数points计算
+    void refreshBBox(const std::vector<PickedPoint> &points);
+    virtual void refreshBBox();
 
 public:
 
@@ -47,6 +57,8 @@ public:
 
     //重做一步
     virtual bool redo() = 0;
+
+    virtual const ccBBox& getBBox();
 };
 
 

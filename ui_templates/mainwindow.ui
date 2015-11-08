@@ -85,6 +85,8 @@
      <string>工具(&amp;T)</string>
     </property>
     <addaction name="actionPointPicking"/>
+    <addaction name="actionCreateMarkedObjectBag"/>
+    <addaction name="actionAddMarkedObject"/>
    </widget>
    <widget class="QMenu" name="menuDisplay">
     <property name="title">
@@ -131,6 +133,9 @@
    <addaction name="actionOpen"/>
    <addaction name="actionSave"/>
    <addaction name="actionTextureGeneration"/>
+   <addaction name="separator"/>
+   <addaction name="actionCreateMarkedObjectBag"/>
+   <addaction name="actionAddMarkedObject"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <widget class="QToolBar" name="toolBarView">
@@ -583,6 +588,24 @@
    </property>
    <property name="text">
     <string>选点</string>
+   </property>
+  </action>
+  <action name="actionCreateMarkedObjectBag">
+   <property name="icon">
+    <iconset resource="../mainwindow.qrc">
+     <normaloff>:/MarkObject/images/moCreate.png</normaloff>:/MarkObject/images/moCreate.png</iconset>
+   </property>
+   <property name="text">
+    <string>创建</string>
+   </property>
+  </action>
+  <action name="actionAddMarkedObject">
+   <property name="icon">
+    <iconset resource="../mainwindow.qrc">
+     <normaloff>:/MarkObject/images/moAdd.png</normaloff>:/MarkObject/images/moAdd.png</iconset>
+   </property>
+   <property name="text">
+    <string>添加</string>
    </property>
   </action>
  </widget>

@@ -1005,21 +1005,21 @@ void ccPropertiesTreeDelegate::fillWithMarkedObject(MarkedObject* _obj)
     }
     else if (MarkedObjectBag *markedObjectBag = dynamic_cast<MarkedObjectBag*>(_obj))
     {
-        //包类型
+        //子物体类型
         QString typeString;
         switch(markedObjectBag->getType())
         {
         case MarkedObjectBag::POINT:
-            typeString = "Point";
+            typeString = "点";
             break;
         case MarkedObjectBag::LINE:
-            typeString = "Line";
+            typeString = "线";
             break;
         case MarkedObjectBag::AREA:
-            typeString = "Area";
+            typeString = "面";
             break;
         }
-        appendRow(ITEM(QString::fromAscii("包类型")), ITEM(typeString));
+        appendRow(ITEM(QString::fromAscii("子物体类型")), ITEM(typeString));
 
         appendRow(ITEM(QString::fromAscii("子物体数量")), ITEM(QString::number(markedObjectBag->size())));
         return;

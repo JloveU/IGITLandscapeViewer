@@ -35,6 +35,7 @@
 
 #include "ccPointPropertiesDlg.h"
 #include "SetMarkedPointTreeRootNameDlg.h"
+#include "CreateMarkedObjectBagDlg.h"
 
 class QMdiArea;
 class ccGLWindow;
@@ -223,6 +224,13 @@ protected slots:
     //弹出设置标记点根标签名称对话框
     void showSetMarkedPointTreeRootNameDlg();
 
+    //物体操作
+    void doActionCreateMarkedObjectBag();
+    void doActionAddMarkedObject();
+    void doActionChangeMarkedObjectColor();
+    void doActionShowMarkedObjectProperties();
+    void doActionExportMarkedObjectAsShapefile();
+
 protected:
 
 	//! Connects all QT actions to slots
@@ -310,6 +318,9 @@ protected:
 
     //上次输入的标记点根标签名称
     QString mLastMarkedPointTreeRootName;
+
+    //创建物体对话框
+    CreateMarkedObjectBagDlg *mCreateMarkedObjectBagDlg;
 
 };
 

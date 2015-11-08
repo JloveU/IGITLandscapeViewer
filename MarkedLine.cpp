@@ -70,6 +70,8 @@ bool MarkedLine::addPoint(ccMesh* mesh, unsigned pointIndex)
     //we must also warn the cloud whenever we delete this label
     //addDependency(cloud,DP_NOTIFY_OTHER_ON_DELETE); //DGM: automatically done by the previous call to addDependency!
 
+    refreshBBox();
+
     return true;
 }
 
@@ -84,6 +86,7 @@ static CCVector3 staticBoxPointMarkerDimsSmall(0.66, 0.66, 0.66);
 static QColor staticPointMarkerColor(0, 255, 0); //顶点固定为绿色，顶点之间的连线颜色为mColor
 static QSharedPointer<ccBox> staticUnitPointMarkerBig(0);
 static QSharedPointer<ccBox> staticUnitPointMarkerSmall(0);
+static ccColor::Rgb staticBBoxColor(255, 255, 0); //Bounding-box颜色
 
 void MarkedLine::drawMeOnly3D(CC_DRAW_CONTEXT& context)
 {
@@ -98,6 +101,12 @@ void MarkedLine::drawMeOnly3D(CC_DRAW_CONTEXT& context)
 			return;
 		glPushName(getUniqueIDForDisplay());
 	}
+
+    //画Bounding-box
+    if (isSelected())
+    {
+        mBBox.draw(staticBBoxColor);
+    }
 
     ////画顶点之间的连线
 	const float c_sizeFactor = 10.0f;
@@ -248,6 +257,7 @@ bool MarkedLine::undo()
         mCurrentPositionInHistory--;
         m_points = mHistory.at(mCurrentPositionInHistory).points;
         mLineLength = mHistory.at(mCurrentPositionInHistory).lineLength;
+        refreshBBox();
         return true;
     }
     else if (mCurrentPositionInHistory == 0)
@@ -255,10 +265,12 @@ bool MarkedLine::undo()
         mCurrentPositionInHistory--;
         m_points.clear();
         mLineLength = 0.0;
+        refreshBBox();
         return true;
     }
     else
     {
+        refreshBBox();
         return false;
     }
 }
@@ -270,10 +282,12 @@ bool MarkedLine::redo()
         mCurrentPositionInHistory++;
         m_points = mHistory.at(mCurrentPositionInHistory).points;
         mLineLength = mHistory.at(mCurrentPositionInHistory).lineLength;
+        refreshBBox();
         return true;
     }
     else
     {
+        refreshBBox();
         return false;
     }
 }

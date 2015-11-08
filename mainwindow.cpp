@@ -47,6 +47,10 @@
 #include <cfloat>
 #include <iostream>
 
+#include "CreateMarkedObjectBagDlg.h"
+#include "MarkedObjectBag.h"
+#include <QColorDialog>
+
 
 //==========================global variables===================================//
 //global static pointer (as there shoule only be one instance of MainWidow)
@@ -67,7 +71,9 @@ MainWindow::MainWindow()
     ,m_pivotVisibilityPopupButton(0)
     ,m_cpeDlg(0)
     ,m_ppDlg(0)
-    ,mSetMarkedPointTreeRootNameDlg(0){
+    ,mSetMarkedPointTreeRootNameDlg(0)
+    , mCreateMarkedObjectBagDlg(0)
+{
 	
 	setupUi(this);
 
@@ -177,6 +183,11 @@ void MainWindow::connectActions(){
 	
     //"Tools" menu
     connect(actionPointPicking,					SIGNAL(triggered()),	this,		SLOT(showSetMarkedPointTreeRootNameDlg()));
+    actionPointPicking->setVisible(false); //隐藏此action，以后将要去掉之
+    connect(actionCreateMarkedObjectBag,		SIGNAL(triggered()),	this,		SLOT(doActionCreateMarkedObjectBag()));
+    //actionCreateMarkedObjectBag->setVisible(false); //隐藏此action，使用右键菜单代替
+    connect(actionAddMarkedObject,				SIGNAL(triggered()),	this,		SLOT(doActionAddMarkedObject()));
+    //actionAddMarkedObject->setVisible(false); //隐藏此action，使用右键菜单代替
 
 	//"Display"  menu
 	connect(actionLockRotationVertAxis,			SIGNAL(triggered()),	this,		SLOT(toggleRotationAboutVertAxis()));
@@ -211,6 +222,12 @@ void MainWindow::connectActions(){
 	connect(actionSetViewIso1,					SIGNAL(triggered()),	this,		SLOT(setIsoView1()));
 	connect(actionSetViewIso2,					SIGNAL(triggered()),	this,		SLOT(setIsoView2()));
 
+    //数据库右键菜单操作
+    connect(m_ccRoot,	SIGNAL(actionCreateMarkedObjectBagTriggered()),			this,	SLOT(doActionCreateMarkedObjectBag()));
+    connect(m_ccRoot,	SIGNAL(actionAddMarkedObjectTriggered()),				this,	SLOT(doActionAddMarkedObject()));
+    connect(m_ccRoot,	SIGNAL(actionChangeMarkedObjectColorTriggered()),		this,	SLOT(doActionChangeMarkedObjectColor()));
+    connect(m_ccRoot,	SIGNAL(actionShowMarkedObjectPropertiesTriggered()),	this,	SLOT(doActionShowMarkedObjectProperties()));
+    connect(m_ccRoot,	SIGNAL(actionExportMarkedObjectAsShapefileTriggered()),	this,	SLOT(doActionExportMarkedObjectAsShapefile()));
 }
 
 //=======================================setActiveSubWindow====================================//
@@ -1551,4 +1568,143 @@ void MainWindow::showSetMarkedPointTreeRootNameDlg()
     disconnect(mSetMarkedPointTreeRootNameDlg, SIGNAL(accepted()), 0, 0);
     connect(mSetMarkedPointTreeRootNameDlg, SIGNAL(accepted()), this, SLOT(activatePointPickingMode()));
     mSetMarkedPointTreeRootNameDlg->show();
+}
+
+void MainWindow::doActionCreateMarkedObjectBag()
+{
+    ccGLWindow* glWindow = getActiveGLWindow();
+    if (!glWindow)
+    {
+        ccLog::Warning(QString::fromAscii("[CreateMarkedObjectBag] 没有激活的OpenGL窗口！"));
+        return;
+    }
+
+    //获取选中的节点作为父节点
+    ccHObject::Container selectedEntities;
+    m_ccRoot->getSelectedEntities(selectedEntities, CC_TYPES::HIERARCHY_OBJECT);
+    if (selectedEntities.size() != 1) //必须先选中一个父节点
+    {
+        ccLog::Error(QString::fromAscii("请先选中一个父节点再创建物体！"));
+        return;
+    }
+    ccHObject *selectedEntity = selectedEntities[0];
+    if (selectedEntity->isLeaf()) //选中的父节点不能是叶子节点
+    {
+        ccLog::Error(QString::fromAscii("不能将叶子节点作为创建物体的父节点！"));
+        return;
+    }
+    if (selectedEntity->getChildrenNumber() > 0) //父节点下面不能有除MarkedObjectBag之外的object
+    {
+        for (unsigned i = 0; i < selectedEntity->getChildrenNumber(); i++)
+        {
+            if(!dynamic_cast<MarkedObjectBag*>(selectedEntity->getChild(i)))
+            {
+                ccLog::Error(QString::fromAscii("创建物体的父节点下面不能有其他种类的Object！"));
+                return;
+            }
+        }
+    }
+
+    //弹出设置对话框
+    if (!mCreateMarkedObjectBagDlg)
+    {
+        mCreateMarkedObjectBagDlg = new CreateMarkedObjectBagDlg(this);
+    }
+    mCreateMarkedObjectBagDlg->setMarkedObjectBagDBTreeParent(selectedEntity);
+    if (!mCreateMarkedObjectBagDlg->exec())
+    {
+        return;
+    }
+
+    //获取对话框输入值
+    QString name = mCreateMarkedObjectBagDlg->getMarkedObjectBagName();
+    MarkedObjectBag::Type type = mCreateMarkedObjectBagDlg->getMarkedObjectBagType();
+    QColor color = mCreateMarkedObjectBagDlg->getMarkedObjectBagColor();
+
+    //创建物体
+    MarkedObjectBag *markedObjectBag = new MarkedObjectBag(glWindow);
+    markedObjectBag->setName(name);
+    markedObjectBag->setMarkedType(selectedEntity);
+    markedObjectBag->setColor(color);
+    markedObjectBag->setType(type);
+
+    //将物体添加到数据库并显示
+    selectedEntity->addChild(markedObjectBag);
+    m_ccRoot->addElement(markedObjectBag);
+}
+
+void MainWindow::doActionAddMarkedObject()
+{
+    ccGLWindow* glWindow = getActiveGLWindow();
+    if (!glWindow)
+    {
+        ccLog::Warning(QString::fromAscii("[CreateMarkedObjectBag] 没有激活的OpenGL窗口！"));
+        return;
+    }
+
+    //获取选中的物体
+    ccHObject::Container selectedEntities;
+    m_ccRoot->getSelectedEntities(selectedEntities, CC_TYPES::HIERARCHY_OBJECT);
+    if (selectedEntities.size() != 1) //必须先选中一个父节点
+    {
+        ccLog::Error(QString::fromAscii("请先选中一个物体！"));
+        return;
+    }
+    MarkedObjectBag *markedObjectBag = dynamic_cast<MarkedObjectBag*>(selectedEntities[0]);
+    if (!markedObjectBag)
+    {
+        ccLog::Error(QString::fromAscii("不能再其他类型的物体中添加子物体！"));
+        return;
+    }
+
+    //打开添加物体工具
+    if (!m_ppDlg)
+    {
+        m_ppDlg = new ccPointPropertiesDlg(this, m_ccRoot);
+        connect(m_ppDlg, SIGNAL(processFinished(bool)),	this, SLOT(deactivatePointPickingMode(bool)));
+        connect(m_ppDlg, SIGNAL(newLabel(ccHObject*)),	this, SLOT(handleNewLabel(ccHObject*)));
+        registerMDIDialog(m_ppDlg,Qt::TopRightCorner);
+    }
+    m_ppDlg->linkWith(glWindow);
+    m_ppDlg->onActivateObjectBagAdding(markedObjectBag);
+    disableAllBut(glWindow);
+    if (!m_ppDlg->start())
+    {
+        deactivatePointPickingMode(false);
+    }
+    else
+    {
+        updateMDIDialogsPlacement();
+    }
+}
+
+void MainWindow::doActionChangeMarkedObjectColor()
+{
+    //获取选中的物体
+    ccHObject::Container selectedEntities;
+    m_ccRoot->getSelectedEntities(selectedEntities, CC_TYPES::HIERARCHY_OBJECT);
+    if (selectedEntities.size() != 1) //必须先选中一个父节点
+    {
+        ccLog::Error(QString::fromAscii("请先选中一个物体！"));
+        return;
+    }
+    MarkedObjectBag *markedObjectBag = dynamic_cast<MarkedObjectBag*>(selectedEntities[0]);
+    if (!markedObjectBag)
+    {
+        ccLog::Error(QString::fromAscii("不能修改其他类型的物体的颜色！"));
+        return;
+    }
+
+    markedObjectBag->setColor(QColorDialog::getColor(markedObjectBag->getColor(), this));
+
+}
+
+void MainWindow::doActionShowMarkedObjectProperties()
+{
+
+}
+
+void MainWindow::doActionExportMarkedObjectAsShapefile()
+{
+
 }

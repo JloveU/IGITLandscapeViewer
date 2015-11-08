@@ -30,7 +30,7 @@
      </property>
      <property name="icon">
       <iconset resource="../mainwindow.qrc">
-       <normaloff>:/CC/images/smallMarkPoint.png</normaloff>:/CC/images/smallMarkPoint.png</iconset>
+       <normaloff>:/MarkObject/images/moMarkPoint.png</normaloff>:/MarkObject/images/moMarkPoint.png</iconset>
      </property>
     </widget>
    </item>
@@ -47,7 +47,7 @@
      </property>
      <property name="icon">
       <iconset resource="../mainwindow.qrc">
-       <normaloff>:/CC/images/smallMarkLine.png</normaloff>:/CC/images/smallMarkLine.png</iconset>
+       <normaloff>:/MarkObject/images/moMarkLine.png</normaloff>:/MarkObject/images/moMarkLine.png</iconset>
      </property>
     </widget>
    </item>
@@ -64,7 +64,7 @@
      </property>
      <property name="icon">
       <iconset resource="../mainwindow.qrc">
-       <normaloff>:/CC/images/smallMarkArea.png</normaloff>:/CC/images/smallMarkArea.png</iconset>
+       <normaloff>:/MarkObject/images/moMarkArea.png</normaloff>:/MarkObject/images/moMarkArea.png</iconset>
      </property>
     </widget>
    </item>
@@ -81,7 +81,7 @@
      </property>
      <property name="icon">
       <iconset resource="../mainwindow.qrc">
-       <normaloff>:/CC/images/smallMarkObjectBag.png</normaloff>:/CC/images/smallMarkObjectBag.png</iconset>
+       <normaloff>:/MarkObject/images/moMarkObjectBag.png</normaloff>:/MarkObject/images/moMarkObjectBag.png</iconset>
      </property>
     </widget>
    </item>
@@ -98,7 +98,7 @@
      </property>
      <property name="icon">
       <iconset resource="../mainwindow.qrc">
-       <normaloff>:/CC/images/smallMarkUndo.png</normaloff>:/CC/images/smallMarkUndo.png</iconset>
+       <normaloff>:/MarkObject/images/moUndo.png</normaloff>:/MarkObject/images/moUndo.png</iconset>
      </property>
     </widget>
    </item>
@@ -115,7 +115,7 @@
      </property>
      <property name="icon">
       <iconset resource="../mainwindow.qrc">
-       <normaloff>:/CC/images/smallMarkRedo.png</normaloff>:/CC/images/smallMarkRedo.png</iconset>
+       <normaloff>:/MarkObject/images/moRedo.png</normaloff>:/MarkObject/images/moRedo.png</iconset>
      </property>
     </widget>
    </item>
@@ -132,7 +132,7 @@
      </property>
      <property name="icon">
       <iconset resource="../mainwindow.qrc">
-       <normaloff>:/CC/images/smallMarkDone.png</normaloff>:/CC/images/smallMarkDone.png</iconset>
+       <normaloff>:/MarkObject/images/moDone.png</normaloff>:/MarkObject/images/moDone.png</iconset>
      </property>
     </widget>
    </item>

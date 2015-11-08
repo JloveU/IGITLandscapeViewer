@@ -303,3 +303,28 @@ void MarkedObject::drawMeOnly2D(CC_DRAW_CONTEXT& context)
 	if (pushName)
 		glPopName();
 }
+
+void MarkedObject::refreshBBox(const std::vector<PickedPoint> &points)
+{
+    mBBox.clear();
+
+    unsigned count = points.size();
+    for (unsigned i = 0; i < count; i++)
+    {
+        const PickedPoint point = points[i];
+        assert(point.index < point.cloud->size());
+        mBBox.add(*point.cloud->getPoint(point.index));
+    }
+
+    notifyGeometryUpdate();
+}
+
+void MarkedObject::refreshBBox()
+{
+    refreshBBox(m_points);
+}
+
+const ccBBox& MarkedObject::getBBox()
+{
+    return mBBox;
+}

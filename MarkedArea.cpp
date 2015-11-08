@@ -223,6 +223,8 @@ bool MarkedArea::addPoint(ccMesh* mesh, unsigned pointIndex)
     //we must also warn the cloud whenever we delete this label
     //addDependency(cloud,DP_NOTIFY_OTHER_ON_DELETE); //DGM: automatically done by the previous call to addDependency!
 
+    refreshBBox();
+
     return true;
 }
 
@@ -243,6 +245,7 @@ static QColor staticBoundaryPointMarkerColor(0, 255, 0); //±ß½çÉÏµÄ¶¥µãÑÕÉ«¹Ì¶¨Î
 static QSharedPointer<ccBox> staticUnitPointMarkerBig(0);
 static QSharedPointer<ccBox> staticUnitPointMarkerSmallBoundary(0);
 static QSharedPointer<ccBox> staticUnitPointMarkerSmallInner(0);
+static ccColor::Rgb staticBBoxColor(255, 255, 0); //Bounding-boxÑÕÉ«
 
 void MarkedArea::drawMeOnly3D(CC_DRAW_CONTEXT& context)
 {
@@ -257,6 +260,12 @@ void MarkedArea::drawMeOnly3D(CC_DRAW_CONTEXT& context)
 			return;
 		glPushName(getUniqueIDForDisplay());
 	}
+
+    //»­Bounding-box
+    if (isSelected())
+    {
+        mBBox.draw(staticBBoxColor);
+    }
 
     //»­·¨Ïß
     //glPushAttrib(GL_LINE_BIT);
@@ -506,6 +515,7 @@ bool MarkedArea::undo()
         mArea = mHistory.at(mCurrentPositionInHistory).area;
         mCenterPoint = mHistory.at(mCurrentPositionInHistory).centerPoint;
         mProjectPlaneNormal = mHistory.at(mCurrentPositionInHistory).projectPlaneNormal;
+        refreshBBox();
         return true;
     }
     else if (mCurrentPositionInHistory == 0)
@@ -520,10 +530,12 @@ bool MarkedArea::undo()
         mArea = 0.0;
         mCenterPoint = CCVector3();
         mProjectPlaneNormal = CCVector3();
+        refreshBBox();
         return true;
     }
     else
     {
+        refreshBBox();
         return false;
     }
 }
@@ -542,10 +554,12 @@ bool MarkedArea::redo()
         mArea = mHistory.at(mCurrentPositionInHistory).area;
         mCenterPoint = mHistory.at(mCurrentPositionInHistory).centerPoint;
         mProjectPlaneNormal = mHistory.at(mCurrentPositionInHistory).projectPlaneNormal;
+        refreshBBox();
         return true;
     }
     else
     {
+        refreshBBox();
         return false;
     }
 }
@@ -610,4 +624,9 @@ bool MarkedArea::findAllInnerPoints(const PickedPoint &seedVertex)
     }
 
     return true;
+}
+
+void MarkedArea::refreshBBox()
+{
+    MarkedObject::refreshBBox((mInnerPoints + mFillPathPoints + QVector<PickedPoint>::fromStdVector(m_points)).toStdVector());
 }

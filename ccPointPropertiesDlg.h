@@ -57,6 +57,10 @@ public:
     //设置标记点根标签名称
     void setMarkedPointTreeRootName(QString name);
 
+public:
+    //向物体中添加子物体
+    void onActivateObjectBagAdding(MarkedObjectBag *markedObjectBag);
+
 protected slots:
 
     void onActivatePointMarking();
@@ -155,6 +159,9 @@ protected:
 
     //当前标记的ObjectBag
     MarkedObjectBag *mCurrentMarkedObjectBag;
+
+    //是否作为添加物体的工具
+    bool mIsAddMode;
 
 };
 

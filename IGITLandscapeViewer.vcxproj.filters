@@ -734,6 +734,15 @@
     <ClCompile Include="GeneratedFiles\Release\moc_SetMarkedObjectBagTypeDlg.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="CreateMarkedObjectBagDlg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_CreateMarkedObjectBagDlg.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_CreateMarkedObjectBagDlg.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="mainwindow.h">
@@ -926,6 +935,12 @@
       <Filter>Form Files</Filter>
     </CustomBuild>
     <CustomBuild Include="SetMarkedObjectBagTypeDlg.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ui_templates\createMarkedObjectBagDlg.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="CreateMarkedObjectBagDlg.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
   </ItemGroup>
@@ -1330,6 +1345,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GeneratedFiles\ui_setMarkedObjectBagTypeDlg.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_createMarkedObjectBagDlg.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
   </ItemGroup>

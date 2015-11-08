@@ -59,6 +59,7 @@ ccPointPropertiesDlg::ccPointPropertiesDlg(QWidget* parent, ccDBRoot *ccRoot)
     , mShortestPathComputer(NULL)
     , mCurrentMarkedArea(NULL)
     , mCurrentMarkedObjectBag(NULL)
+    , mIsAddMode(false)
 {
 	setupUi(this);
 	setWindowFlags(Qt::FramelessWindowHint |Qt::Tool);
@@ -88,6 +89,7 @@ ccPointPropertiesDlg::ccPointPropertiesDlg(QWidget* parent, ccDBRoot *ccRoot)
 	m_rect2DLabel->setSelected(true);	//=closed
 
     //隐藏不使用的按钮
+    markObjectBagButton->setVisible(false);
     pointPropertiesButton->setVisible(false);
     pointPointDistanceButton->setVisible(false);
     pointsAngleButton->setVisible(false);
@@ -150,7 +152,10 @@ bool ccPointPropertiesDlg::linkWith(ccGLWindow* win)
 
 bool ccPointPropertiesDlg::start()
 {
-	onActivatePointMarking();
+    if (!mIsAddMode)
+    {
+        onActivatePointMarking();
+    }
 
 	return ccPointPickingGenericInterface::start();
 }
@@ -187,6 +192,10 @@ void ccPointPropertiesDlg::onClose()
     if (mCurrentMarkedArea)
     {
         mCurrentMarkedArea->setSelected(false);
+    }
+    if (mCurrentMarkedObjectBag)
+    {
+        mCurrentMarkedObjectBag->setSelected(false);
     }
     if (mLastMarkedObject)
     {
@@ -316,6 +325,47 @@ void ccPointPropertiesDlg::onActivateObjectBagMarking()
     }
 }
 
+void ccPointPropertiesDlg::onActivateObjectBagAdding(MarkedObjectBag *markedObjectBag)
+{
+    mIsAddMode = true;
+
+    mCurrentMarkedObjectBag = markedObjectBag;
+    switch(markedObjectBag->getType())
+    {
+    case MarkedObjectBag::POINT:
+        markPointButton->setEnabled(true);
+        markLineButton->setEnabled(false);
+        markAreaButton->setEnabled(false);
+        break;
+    case MarkedObjectBag::LINE:
+        markPointButton->setEnabled(false);
+        markLineButton->setEnabled(true);
+        markAreaButton->setEnabled(false);
+        break;
+    case MarkedObjectBag::AREA:
+        markPointButton->setEnabled(false);
+        markLineButton->setEnabled(false);
+        markAreaButton->setEnabled(true);
+        break;
+    }
+    markObjectBagButton->setEnabled(false);
+
+    m_pickingMode = MARK_OBJECT_BAG;
+    if (m_associatedWin)
+    {
+        m_associatedWin->setInteractionMode(ccGLWindow::TRANSFORM_CAMERA);
+        m_associatedWin->updateGL();
+    }
+    if (mCurrentMarkedObjectBag->getType() == MarkedObjectBag::LINE)
+    {
+        mCurrentMarkedObjectBag->addObject(new MarkedLine());
+    }
+    if (mCurrentMarkedObjectBag->getType() == MarkedObjectBag::AREA)
+    {
+        mCurrentMarkedObjectBag->addObject(new MarkedArea());
+    }
+}
+
 void ccPointPropertiesDlg::onMarkUndo()
 {
     switch(m_pickingMode)
@@ -419,7 +469,10 @@ void ccPointPropertiesDlg::onCancelObjectBagMarking()
         return;
     }
 
-    mCurrentMarkedObjectBag->clear();
+    if (!mIsAddMode)
+    {
+        mCurrentMarkedObjectBag->clear();
+    }
 }
 
 void ccPointPropertiesDlg::activatePointPropertiesDisplay()
@@ -799,6 +852,7 @@ void ccPointPropertiesDlg::processPickedTriangle(ccMesh* mesh, unsigned triangle
         default:
             assert(false);
         }
+        mCurrentMarkedObjectBag->refreshBBox();
         break;
     default:
         ccLog::Error("[Mark operation] Mark mode invalid!");
@@ -949,6 +1003,11 @@ void ccPointPropertiesDlg::onMarkDone()
         switch(mCurrentMarkedObjectBag->getType())
         {
         case MarkedObjectBag::POINT:
+            if (mIsAddMode)
+            {
+                onClose();
+                return;
+            }
             break;
         case MarkedObjectBag::LINE:
             MarkedLine *markedLine;
@@ -959,6 +1018,11 @@ void ccPointPropertiesDlg::onMarkDone()
                 return;
             }
             mCurrentMarkedObjectBag->removeLatestObject(); //去掉新添加的空line
+            if (mIsAddMode)
+            {
+                onClose();
+                return;
+            }
             break;
         case MarkedObjectBag::AREA:
             MarkedArea *markedArea;
@@ -969,6 +1033,11 @@ void ccPointPropertiesDlg::onMarkDone()
                 return;
             }
             mCurrentMarkedObjectBag->removeLatestObject(); //去掉新添加的空area
+            if (mIsAddMode)
+            {
+                onClose();
+                return;
+            }
             break;
         default:
             assert(false);

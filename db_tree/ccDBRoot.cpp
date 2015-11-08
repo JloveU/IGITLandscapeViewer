@@ -141,6 +141,13 @@ ccDBRoot::ccDBRoot(ccCustomQTreeView* dbTreeWidget, QTreeView* propertiesTreeWid
 	//m_enableBubbleViewMode = new QAction("Bubble-view",this);
 	m_enableBubbleViewMode = new QAction("Bubble-view",this);
 
+    //Added by yuqiang on 2015/11/07
+    mActionCreateMarkedObjectBag = new QAction("创建物体", this);
+    mActionAddMarkedObject = new QAction("添加子物体", this);
+    mActionChangeMarkedObjectColor = new QAction("修改颜色", this);
+    mActionShowMarkedObjectProperties = new QAction("显示属性", this);
+    mActionExportMarkedObjectAsShapefile = new QAction("导出Shapefile", this);
+
 	m_contextMenuPos = QPoint(-1,-1);
 
 	//connect custom context menu actions
@@ -165,6 +172,13 @@ ccDBRoot::ccDBRoot(ccCustomQTreeView* dbTreeWidget, QTreeView* propertiesTreeWid
 	connect(m_alignCameraWithEntity,			SIGNAL(triggered()),								this, SLOT(alignCameraWithEntityDirect()));
 	connect(m_alignCameraWithEntityReverse,		SIGNAL(triggered()),								this, SLOT(alignCameraWithEntityIndirect()));
 	connect(m_enableBubbleViewMode,				SIGNAL(triggered()),								this, SLOT(enableBubbleViewMode()));
+
+    //Added by yuqiang on 2015/11/07
+    connect(mActionCreateMarkedObjectBag,			SIGNAL(triggered()),							this, SIGNAL(actionCreateMarkedObjectBagTriggered()));
+    connect(mActionAddMarkedObject,					SIGNAL(triggered()),							this, SIGNAL(actionAddMarkedObjectTriggered()));
+    connect(mActionChangeMarkedObjectColor,			SIGNAL(triggered()),							this, SIGNAL(actionChangeMarkedObjectColorTriggered()));
+    connect(mActionShowMarkedObjectProperties,		SIGNAL(triggered()),							this, SIGNAL(actionShowMarkedObjectPropertiesTriggered()));
+    connect(mActionExportMarkedObjectAsShapefile,	SIGNAL(triggered()),							this, SIGNAL(actionExportMarkedObjectAsShapefileTriggered()));
 
 	//other DB tree signals/slots connection
 	//选择DBTree上的物体
@@ -395,6 +409,12 @@ void ccDBRoot::deleteSelectedEntities()
 				anObject->getParent()->setVisible(true);
 		}
 
+        //Added by yuqiang on 2015/11/07 删除物体时将其清空以删除其在GLWindow中的显示
+        if (MarkedObjectBag *markedObjectBag = dynamic_cast<MarkedObjectBag*>(anObject))
+        {
+            markedObjectBag->clear();
+        }
+
 		ccHObject* parent = anObject->getParent();
 		int childPos = parent->getChildIndex(anObject);
 		assert(childPos >= 0);
@@ -515,6 +535,41 @@ QVariant ccDBRoot::data(const QModelIndex &index, int role) const
 			else
 				return QIcon(QString::fromUtf8(":/CC/images/dbContainerSymbol.png"));
 		case CC_TYPES::LABEL_2D:
+            //Added by yuqiang on 2015/11/08
+            const MarkedObject *markedObject;
+            markedObject = dynamic_cast<const MarkedObject*>(item);
+            if (markedObject != NULL)
+            {
+                if (const MarkedPoint *markedPoint = dynamic_cast<const MarkedPoint*>(markedObject))
+                {
+                    return QIcon(QString::fromUtf8(":/MarkObject/images/moMarkPoint.png"));
+                }
+                else if (const MarkedLine *markedLine = dynamic_cast<const MarkedLine*>(markedObject))
+                {
+                    return QIcon(QString::fromUtf8(":/MarkObject/images/moMarkLine.png"));
+                }
+                else if (const MarkedArea *markedArea = dynamic_cast<const MarkedArea*>(markedObject))
+                {
+                    return QIcon(QString::fromUtf8(":/MarkObject/images/moMarkArea.png"));
+                }
+                else if (const MarkedObjectBag *markedObjectBag = dynamic_cast<const MarkedObjectBag*>(markedObject))
+                {
+                    switch (markedObjectBag->getType())
+                    {
+                    default:
+                    case MarkedObjectBag::POINT:
+                        return QIcon(QString::fromUtf8(":/MarkObject/images/moMarkPoint.png"));
+                        break;
+                    case MarkedObjectBag::LINE:
+                        return QIcon(QString::fromUtf8(":/MarkObject/images/moMarkLine.png"));
+                        break;
+                    case MarkedObjectBag::AREA:
+                        return QIcon(QString::fromUtf8(":/MarkObject/images/moMarkArea.png"));
+                        break;
+                    }
+                }
+            }
+
 			return QIcon(QString::fromUtf8(":/CC/images/dbLabelSymbol.png"));
 		case CC_TYPES::VIEWPORT_2D_OBJECT:
 			return QIcon(QString::fromUtf8(":/CC/images/dbViewportSymbol.png"));
@@ -1816,6 +1871,7 @@ void ccDBRoot::showContextMenu(const QPoint& menuPos)
 			bool hasExactlyOnePlanarEntity = false;
 			bool leafObject = false;
 			bool hasExacltyOneGBLSenor = false;
+            bool isMarkedObjectBag = false; //Added by yuqiang on 2015/11/07
 			for (int i=0; i<selCount; ++i){
 
 				ccHObject* item = static_cast<ccHObject*>(selectedIndexes[i].internalPointer());
@@ -1854,9 +1910,30 @@ void ccDBRoot::showContextMenu(const QPoint& menuPos)
 						{
 							hasExacltyOneGBLSenor = true;
 						}
+
+                        //Added by yuqiang on 2015/11/07
+                        if (dynamic_cast<MarkedObjectBag*>(item))
+                        {
+                            isMarkedObjectBag = true;
+                        }
 					}
 				}
 			}
+
+            //Added by yuqiang on 2015/11/07
+            if (selCount==1 && !leafObject)
+            {
+                menu.addAction(mActionCreateMarkedObjectBag);
+                menu.addSeparator();
+            }
+            if (isMarkedObjectBag)
+            {
+                menu.addAction(mActionAddMarkedObject);
+                menu.addAction(mActionChangeMarkedObjectColor);
+                menu.addAction(mActionShowMarkedObjectProperties);
+                menu.addAction(mActionExportMarkedObjectAsShapefile);
+                menu.addSeparator();
+            }
 
 			if (hasExactlyOnePlanarEntity)
 			{

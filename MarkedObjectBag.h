@@ -52,7 +52,7 @@ public:
 
     void setType(const Type type);
 
-    Type getType();
+    Type getType() const;
 
     //Inherited from MarkedObject
     void setName(const QString &name);
@@ -84,6 +84,8 @@ public:
 
     //Inherited from MarkedObject
     bool redo();
+
+    void refreshBBox();
 
 };
 

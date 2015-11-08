@@ -291,6 +291,19 @@ protected:
 	//! Last context menu pos
 	QPoint m_contextMenuPos;  //≤Àµ•Œª÷√
 
+    //Added by yuqiang on 2015/11/07
+    QAction* mActionCreateMarkedObjectBag;
+    QAction* mActionAddMarkedObject;
+    QAction* mActionChangeMarkedObjectColor;
+    QAction* mActionShowMarkedObjectProperties;
+    QAction* mActionExportMarkedObjectAsShapefile;
+signals:
+    void actionCreateMarkedObjectBagTriggered();
+    void actionAddMarkedObjectTriggered();
+    void actionChangeMarkedObjectColorTriggered();
+    void actionShowMarkedObjectPropertiesTriggered();
+    void actionExportMarkedObjectAsShapefileTriggered();
+
 };
 
 #endif

@@ -289,9 +289,8 @@ void SetMarkedObjectPropertyDlg::checkInputAndCommit()
     mMarkedTypeName = getMarkedTypeName();
     mMarkedObjectColor = getMarkedObjectColor();
 
-    hide();
-    emit accepted();
     emit committed(getMarkedTypeName(), getMarkedObjectName(), getMarkedObjectColor());
+    accept();
 }
 
 QColor SetMarkedObjectPropertyDlg::gray2PseudoColor(float grayValue)

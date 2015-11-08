@@ -13,6 +13,8 @@ void MarkedPoint::setPoint(ccMesh* mesh, unsigned pointIndex)
     m_points.clear();
 
     cc2DLabel::addPoint(mesh, pointIndex);
+
+    refreshBBox();
 }
 
 bool MarkedPoint::addPoint(ccGenericPointCloud* cloud, unsigned pointIndex)

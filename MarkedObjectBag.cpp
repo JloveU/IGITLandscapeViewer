@@ -22,7 +22,7 @@ void MarkedObjectBag::setType(const Type type)
     mType = type;
 }
 
-MarkedObjectBag::Type MarkedObjectBag::getType()
+MarkedObjectBag::Type MarkedObjectBag::getType() const
 {
     return mType;
 }
@@ -70,9 +70,10 @@ void MarkedObjectBag::addObject(MarkedObject *object)
         assert(false);
     }
 
-    object->setName(getName());
+    object->setName(getName() + "_" + QString::number(mObjects.size() + 1));
     object->setColor(getColor());
     object->setMarkedType(NULL);
+    object->setSelected(true);
 
     //将之前的所有object的2D标签隐藏
     const unsigned objectNum = mObjects.size();
@@ -94,6 +95,8 @@ void MarkedObjectBag::addObject(MarkedObject *object)
     mHistory.resize(mHistory.size() + 1);
     mHistory.back().objects = mObjects;
     mCurrentPositionInHistory = mHistory.size() - 1;
+
+    refreshBBox();
 }
 
 unsigned MarkedObjectBag::size()
@@ -118,6 +121,8 @@ void MarkedObjectBag::removeLatestObject()
     mObjects.pop_back();
 }
 
+static ccColor::Rgb staticBBoxColor(255, 255, 0); //Bounding-box颜色
+
 void MarkedObjectBag::draw(CC_DRAW_CONTEXT& context)
 {
     ccHObject::draw(context);
@@ -127,17 +132,25 @@ void MarkedObjectBag::draw(CC_DRAW_CONTEXT& context)
     {
         mObjects[i]->draw(context);
     }
+
+    //画Bounding-box
+    if (isSelected())
+    {
+        mBBox.draw(staticBBoxColor);
+    }
 }
 
 inline void MarkedObjectBag::setSelected(bool state)
 {
-    MarkedObject::setSelected(state);
+    cc2DLabel::setSelected(state);
 
     const unsigned objectNum = mObjects.size();
     for (unsigned i = 0; i < objectNum; i++)
     {
-        mObjects[i]->setSelected(state);
+        mObjects[i]->setSelected(false);
     }
+
+    mContextWin->redraw();
 }
 
 QStringList MarkedObjectBag::getLabelContent(int precision)
@@ -165,6 +178,7 @@ bool MarkedObjectBag::undo()
     case AREA:
         if (mObjects.size() > 0 && mObjects.back()->undo())
         {
+            refreshBBox();
             return true;
         }
     case POINT:
@@ -173,6 +187,7 @@ bool MarkedObjectBag::undo()
             mCurrentPositionInHistory--;
             mContextWin->removeFromOwnDB(mObjects.back());
             mObjects = mHistory.at(mCurrentPositionInHistory).objects;
+            refreshBBox();
             return true;
         }
         else if (mCurrentPositionInHistory == 0)
@@ -180,13 +195,18 @@ bool MarkedObjectBag::undo()
             mCurrentPositionInHistory--;
             mContextWin->removeFromOwnDB(mObjects.back());
             mObjects.clear();
+            refreshBBox();
             return true;
         }
         else
         {
+            refreshBBox();
             return false;
         }
         break;
+    default:
+        refreshBBox();
+        return false;
     }
 }
 
@@ -198,6 +218,7 @@ bool MarkedObjectBag::redo()
     case AREA:
         if (mObjects.size() > 0 && mObjects.back()->redo())
         {
+            refreshBBox();
             return true;
         }
     case POINT:
@@ -206,12 +227,30 @@ bool MarkedObjectBag::redo()
             mCurrentPositionInHistory++;
             mObjects = mHistory.at(mCurrentPositionInHistory).objects;
             mContextWin->addToOwnDB(mObjects.back());
+            refreshBBox();
             return true;
         }
         else
         {
+            refreshBBox();
             return false;
         }
         break;
+    default:
+        refreshBBox();
+        return false;
     }
+}
+
+void MarkedObjectBag::refreshBBox()
+{
+    mBBox.clear();
+
+    const unsigned objectNum = mObjects.size();
+    for (unsigned i = 0; i < objectNum; i++)
+    {
+        mBBox += mObjects[i]->getBBox();
+    }
+
+    mContextWin->redraw();
 }
