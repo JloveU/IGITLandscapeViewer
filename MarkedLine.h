@@ -72,6 +72,9 @@ public:
     //Inherited from MarkedObject
     bool redo();
 
+    //是否已经是合法的线（至少包含两个点）
+    bool isValid();
+
 };
 
 

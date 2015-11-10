@@ -6,6 +6,7 @@
 #include "ccCustomObject.h"
 #include "MarkedObject.h"
 #include "ccGLWindow.h"
+#include <QSqlTableModel>
 
 class MarkedObjectBag : public MarkedObject
 {
@@ -20,6 +21,10 @@ public:
         AREA
     };
 
+    //数据库中显示的类型
+    static const QStringList TABLE_TYPE_STRINGS;
+    static const QStringList TABLE_READONLY_FIELD_NAMES;
+
 private:
 
     ccGLWindow *mContextWin;
@@ -27,6 +32,10 @@ private:
     Type mType;
 
     QList<MarkedObject*> mObjects;
+
+    //数据库表
+    QString mTableName;
+    QSqlTableModel *mTableModel;
 
     //操作历史纪录
     struct HistoryItem
@@ -48,9 +57,9 @@ private:
 
 public:
 
-    MarkedObjectBag(ccGLWindow *contextWin, const Type type = POINT, const QString &name = "UntitledObject");
+    MarkedObjectBag(ccGLWindow *contextWin, const Type type, const QString &name = "UntitledObject");
 
-    void setType(const Type type);
+    //void setType(const Type type);
 
     Type getType() const;
 
@@ -64,9 +73,7 @@ public:
 
     unsigned size();
 
-    MarkedObject * getLatestObject();
-
-    void removeLatestObject();
+    MarkedObject* getLatestObject();
 
     //Inherited from ccHObject
     void draw(CC_DRAW_CONTEXT& context);
@@ -85,7 +92,12 @@ public:
     //Inherited from MarkedObject
     bool redo();
 
+    //添加子物体完毕
+    void done();
+
     void refreshBBox();
+
+    QSqlTableModel* getTableModel();
 
 };
 

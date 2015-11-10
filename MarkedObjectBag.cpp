@@ -2,25 +2,56 @@
 #include "MarkedPoint.h"
 #include "MarkedLine.h"
 #include "MarkedArea.h"
+#include <QDateTime>
+#include <QSqlQuery>
+
+const QStringList MarkedObjectBag::TABLE_TYPE_STRINGS = QString("POINTZ,POLYLINEZ,POLYGONZ").split(",");
+const QStringList MarkedObjectBag::TABLE_READONLY_FIELD_NAMES = QString("OBJECT_ID,NAME,SHAPE,LENGTH,BOUNDARY_LENGTH,AREA").split(",");
 
 MarkedObjectBag::MarkedObjectBag(ccGLWindow *contextWin, const Type type, const QString &name)
     : MarkedObject(name)
     , mContextWin(contextWin)
     , mType(type)
+    , mTableModel(NULL)
     , mCurrentPositionInHistory(-1)
 {
-}
-
-void MarkedObjectBag::setType(const Type type)
-{
-    if (!mObjects.empty()) //如果已经添加过object，则不允许再更改类型
+    //创建数据库表
+    mTableName = name + QDateTime::currentDateTime().toString("_yyyy_MM_dd_hh_mm_ss_zzz");
+    QSqlQuery query;
+    QString queryString = QString("create table %1 (%2 INTERGER(9) PRIMARY KEY, %3 varchar(20), %4 varchar(20)")
+        .arg(mTableName)
+        .arg(TABLE_READONLY_FIELD_NAMES[0])
+        .arg(TABLE_READONLY_FIELD_NAMES[1])
+        .arg(TABLE_READONLY_FIELD_NAMES[2]);
+    switch(type)
     {
-        assert(false);
-        return;
+    case POINT:
+        break;
+    case LINE:
+        queryString += QString(", LENGTH float(32)").arg(TABLE_READONLY_FIELD_NAMES[3]);
+        break;
+    case AREA:
+        queryString += QString(", BOUNDARY_LENGTH float(32)").arg(TABLE_READONLY_FIELD_NAMES[4]);
+        queryString += QString(", AREA float(32)").arg(TABLE_READONLY_FIELD_NAMES[5]);
+        break;
     }
+    queryString += ")";
+    query.exec(queryString);
 
-    mType = type;
+    mTableModel = new QSqlTableModel();
+    mTableModel->setTable(mTableName);
 }
+
+// void MarkedObjectBag::setType(const Type type)
+// {
+//     if (!mObjects.empty()) //如果已经添加过object，则不允许再更改类型
+//     {
+//         assert(false);
+//         return;
+//     }
+// 
+//     mType = type;
+// }
 
 MarkedObjectBag::Type MarkedObjectBag::getType() const
 {
@@ -70,10 +101,56 @@ void MarkedObjectBag::addObject(MarkedObject *object)
         assert(false);
     }
 
-    object->setName(getName() + "_" + QString::number(mObjects.size() + 1));
+    const unsigned objectIndex = mObjects.size() + 1;
+    object->setName(getName() + "_" + QString::number(objectIndex));
     object->setColor(getColor());
     object->setMarkedType(NULL);
     object->setSelected(true);
+
+    //添加到数据库
+    /*QSqlQuery query;
+    QString queryString;
+    switch(mType)
+    {
+    case POINT:
+        queryString = QString("insert into %1 values(%2, '%3', '%4'")
+            .arg(mTableName)
+            .arg(objectIndex)
+            .arg(object->getName())
+            .arg(TABLE_TYPE_STRINGS[mType]);
+        queryString += ")";
+        query.exec(queryString);
+        break;
+    case LINE: //因为添加线和面时是先在mObjects末尾添加一个空的线或面然后再修改之，因此此处添加到数据库操作要向后移一位，即本次将上次添加的子物体添加到数据库
+        if (objectIndex > 1)
+        {
+            MarkedLine *markedLine = dynamic_cast<MarkedLine*>(mObjects.back());
+            queryString = QString("insert into %1 values(%2, '%3', '%4'")
+                .arg(mTableName)
+                .arg(objectIndex - 1)
+                .arg(object->getName())
+                .arg(TABLE_TYPE_STRINGS[mType]);
+            queryString += QString(", %1").arg(markedLine->getLineLength());
+            queryString += ")";
+            query.exec(queryString);
+        }
+        break;
+    case AREA: //因为添加线和面时是先在mObjects末尾添加一个空的线或面然后再修改之，因此此处添加到数据库操作要向后移一位，即本次将上次添加的子物体添加到数据库
+        if (objectIndex > 1)
+        {
+            MarkedArea *markedArea = dynamic_cast<MarkedArea*>(mObjects.back());
+            queryString = QString("insert into %1 values(%2, '%3', '%4'")
+                .arg(mTableName)
+                .arg(objectIndex - 1)
+                .arg(object->getName())
+                .arg(TABLE_TYPE_STRINGS[mType]);
+            queryString += QString(", %1").arg(markedArea->getBoundaryLength());
+            queryString += QString(", %1").arg(markedArea->getArea());
+            queryString += ")";
+            query.exec(queryString);
+        }
+        break;
+    }*/
 
     //将之前的所有object的2D标签隐藏
     const unsigned objectNum = mObjects.size();
@@ -84,6 +161,7 @@ void MarkedObjectBag::addObject(MarkedObject *object)
 
     mObjects.push_back(object);
 
+    //显示到OpenGL窗口
     mContextWin->addToOwnDB(object);
     mContextWin->redraw();
 
@@ -104,7 +182,7 @@ unsigned MarkedObjectBag::size()
     return mObjects.size();
 }
 
-MarkedObject * MarkedObjectBag::getLatestObject()
+MarkedObject* MarkedObjectBag::getLatestObject()
 {
     if (mObjects.size() == 0)
     {
@@ -114,11 +192,6 @@ MarkedObject * MarkedObjectBag::getLatestObject()
     {
         return mObjects.back();
     }
-}
-
-void MarkedObjectBag::removeLatestObject()
-{
-    mObjects.pop_back();
 }
 
 static ccColor::Rgb staticBBoxColor(255, 255, 0); //Bounding-box颜色
@@ -242,6 +315,83 @@ bool MarkedObjectBag::redo()
     }
 }
 
+void MarkedObjectBag::done()
+{
+    if (mObjects.empty())
+    {
+        return;
+    }
+
+    //去掉不合法的子物体
+    switch(mType)
+    {
+    case POINT:
+        break;
+    case LINE:
+        if (!(dynamic_cast<MarkedLine*>(mObjects.back()))->isValid())
+        {
+            mContextWin->removeFromOwnDB(mObjects.back());
+            mObjects.pop_back();
+        }
+        break;
+    case AREA:
+        if (!(dynamic_cast<MarkedArea*>(mObjects.back()))->isValid())
+        {
+            mContextWin->removeFromOwnDB(mObjects.back());
+            mObjects.pop_back();
+        }
+        break;
+    }
+
+    //将所有子物体添加到数据库
+    QSqlQuery deleteAllItemsQuery;
+    deleteAllItemsQuery.exec(QString("delete from %1").arg(mTableName)); //先将表清空
+    const unsigned objectNum = mObjects.size();
+    QSqlQuery insertQuery;
+    switch(mType)
+    {
+    case POINT:
+        insertQuery.prepare(QString("insert into %1 values(?, ?, ?)").arg(mTableName));
+        for(unsigned i = 0; i < objectNum; i++)
+        {
+            insertQuery.bindValue(0, i + 1);
+            insertQuery.bindValue(1, mObjects[i]->getName());
+            insertQuery.bindValue(2, TABLE_TYPE_STRINGS[POINT]);
+            assert(insertQuery.exec());
+        }
+        break;
+    case LINE:
+        insertQuery.prepare(QString("insert into %1 values(?, ?, ?, ?)").arg(mTableName));
+        for(unsigned i = 0; i < objectNum; i++)
+        {
+            insertQuery.bindValue(0, i + 1);
+            insertQuery.bindValue(1, mObjects[i]->getName());
+            insertQuery.bindValue(2, TABLE_TYPE_STRINGS[LINE]);
+            MarkedLine *markedLine = dynamic_cast<MarkedLine*>(mObjects[i]);
+            insertQuery.bindValue(3, markedLine->getLineLength());
+            assert(insertQuery.exec());
+        }
+        break;
+    case AREA:
+        insertQuery.prepare(QString("insert into %1 values(?, ?, ?, ?, ?)").arg(mTableName));
+        for(unsigned i = 0; i < objectNum; i++)
+        {
+            insertQuery.bindValue(0, i + 1);
+            insertQuery.bindValue(1, mObjects[i]->getName());
+            insertQuery.bindValue(2, TABLE_TYPE_STRINGS[LINE]);
+            MarkedArea *markedArea = dynamic_cast<MarkedArea*>(mObjects[i]);
+            insertQuery.bindValue(3, markedArea->getBoundaryLength());
+            insertQuery.bindValue(4, markedArea->getArea());
+            assert(insertQuery.exec());
+        }
+        break;
+    default:
+        assert(false);
+        break;
+    }
+
+}
+
 void MarkedObjectBag::refreshBBox()
 {
     mBBox.clear();
@@ -253,4 +403,12 @@ void MarkedObjectBag::refreshBBox()
     }
 
     mContextWin->redraw();
+}
+
+QSqlTableModel* MarkedObjectBag::getTableModel()
+{
+    mTableModel->clear();
+    mTableModel->setTable(mTableName);
+    mTableModel->select();
+    return mTableModel;
 }

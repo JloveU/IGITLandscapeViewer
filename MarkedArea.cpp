@@ -564,6 +564,11 @@ bool MarkedArea::redo()
     }
 }
 
+bool MarkedArea::isValid()
+{
+    return (mFillPathPoints.size() != 0);
+}
+
 bool MarkedArea::findAllInnerPoints(const PickedPoint &seedVertex)
 {
     //所有边界点

@@ -112,7 +112,10 @@ void SetMarkedObjectPropertyDlg::selectColor()
         return;
     }
     QColor color = QColorDialog::getColor(Qt::white, this);
-    setMarkedObjectColor(color);
+    if (color.isValid())
+    {
+        setMarkedObjectColor(color);
+    }
 }
 
 void SetMarkedObjectPropertyDlg::show()

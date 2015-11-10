@@ -127,6 +127,9 @@ public:
     //Inherited from MarkedObject
     bool redo();
 
+    //是否已经是闭合的区域（鼠标至少点击3次才能闭合）
+    bool isValid();
+
 protected:
 
     //利用区域生长寻找所有内部点，输入seedVertex为假设属于内部点的一个点，由该点开始进行区域生长，如果该点实际不是内部点（即不能成功找到所有内部点），则返回false，否则返回true

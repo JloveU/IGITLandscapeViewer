@@ -195,7 +195,43 @@ void ccPointPropertiesDlg::onClose()
     }
     if (mCurrentMarkedObjectBag)
     {
+        if (mCurrentMarkedObjectBag->size() > 0)
+        {
+            switch(mCurrentMarkedObjectBag->getType())
+            {
+            case MarkedObjectBag::POINT:
+                break;
+            case MarkedObjectBag::LINE:
+                MarkedLine *markedLine;
+                markedLine = dynamic_cast<MarkedLine*>(mCurrentMarkedObjectBag->getLatestObject());
+                if (markedLine->size() != 0)
+                {
+                    if (!markedLine->isValid())
+                    {
+                        QMessageBox::warning(parentWidget(),
+                            tr("Invalid operation"),
+                            tr("The latest marked line shouldn't have only one point! It will be removed!"));
+                    }
+                }
+                break;
+            case MarkedObjectBag::AREA:
+                MarkedArea *markedArea;
+                markedArea = dynamic_cast<MarkedArea*>(mCurrentMarkedObjectBag->getLatestObject());
+                if (markedArea->size() != 0)
+                {
+                    if (!markedArea->isValid())
+                    {
+                        QMessageBox::warning(parentWidget(),
+                            tr("Invalid operation"),
+                            tr("The latest marked area shouldn't have only one point! It will be removed!"));
+                        return;
+                    }
+                }
+                break;
+            }
+        }
         mCurrentMarkedObjectBag->setSelected(false);
+        mCurrentMarkedObjectBag->done();
     }
     if (mLastMarkedObject)
     {
@@ -311,10 +347,9 @@ void ccPointPropertiesDlg::onActivateObjectBagMarking()
         m_associatedWin->updateGL();
     }
 
-    mCurrentMarkedObjectBag = new MarkedObjectBag(m_associatedWin);
     SetMarkedObjectBagTypeDlg *setMarkedObjectBagTypeDlg = new SetMarkedObjectBagTypeDlg(parentWidget());
     setMarkedObjectBagTypeDlg->exec(); //此处用exec()而不是show()，只有在对话框关闭后exec()函数才会返回
-    mCurrentMarkedObjectBag->setType(setMarkedObjectBagTypeDlg->getMarkedObjectBagType());
+    mCurrentMarkedObjectBag = new MarkedObjectBag(m_associatedWin, setMarkedObjectBagTypeDlg->getMarkedObjectBagType());
     if (mCurrentMarkedObjectBag->getType() == MarkedObjectBag::LINE)
     {
         mCurrentMarkedObjectBag->addObject(new MarkedLine());
@@ -1014,10 +1049,19 @@ void ccPointPropertiesDlg::onMarkDone()
             markedLine = dynamic_cast<MarkedLine*>(mCurrentMarkedObjectBag->getLatestObject());
             if (markedLine->size() != 0) //此情况下点击完成时在bag中创建新的line，否则将bag添加到数据库
             {
-                mCurrentMarkedObjectBag->addObject(new MarkedLine());
-                return;
+                if (!markedLine->isValid())
+                {
+                    QMessageBox::warning(parentWidget(),
+                        tr("Invalid operation"),
+                        tr("The marked line shouldn't have only one point!"));
+                    return;
+                }
+                else
+                {
+                    mCurrentMarkedObjectBag->addObject(new MarkedLine());
+                    return;
+                }
             }
-            mCurrentMarkedObjectBag->removeLatestObject(); //去掉新添加的空line
             if (mIsAddMode)
             {
                 onClose();
@@ -1027,12 +1071,21 @@ void ccPointPropertiesDlg::onMarkDone()
         case MarkedObjectBag::AREA:
             MarkedArea *markedArea;
             markedArea = dynamic_cast<MarkedArea*>(mCurrentMarkedObjectBag->getLatestObject());
-            if (markedArea->size() != 0) //此情况下点击完成时在bag中创建新的line，否则将bag添加到数据库
+            if (markedArea->size() != 0) //此情况下点击完成时在bag中创建新的area，否则将bag添加到数据库
             {
-                mCurrentMarkedObjectBag->addObject(new MarkedArea());
-                return;
+                if (!markedArea->isValid())
+                {
+                    QMessageBox::warning(parentWidget(),
+                        tr("Invalid operation"),
+                        tr("The marked area shouldn't have only one point!"));
+                    return;
+                }
+                else
+                {
+                    mCurrentMarkedObjectBag->addObject(new MarkedArea());
+                    return;
+                }
             }
-            mCurrentMarkedObjectBag->removeLatestObject(); //去掉新添加的空area
             if (mIsAddMode)
             {
                 onClose();

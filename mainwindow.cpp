@@ -50,6 +50,7 @@
 #include "CreateMarkedObjectBagDlg.h"
 #include "MarkedObjectBag.h"
 #include <QColorDialog>
+#include "TableViewerDlg.h"
 
 
 //==========================global variables===================================//
@@ -1622,11 +1623,11 @@ void MainWindow::doActionCreateMarkedObjectBag()
     QColor color = mCreateMarkedObjectBagDlg->getMarkedObjectBagColor();
 
     //创建物体
-    MarkedObjectBag *markedObjectBag = new MarkedObjectBag(glWindow);
-    markedObjectBag->setName(name);
-    markedObjectBag->setMarkedType(selectedEntity);
+    MarkedObjectBag *markedObjectBag = new MarkedObjectBag(glWindow, type, name);
+    //markedObjectBag->setName(name);
+    //markedObjectBag->setType(type);
     markedObjectBag->setColor(color);
-    markedObjectBag->setType(type);
+    markedObjectBag->setMarkedType(selectedEntity);
 
     //将物体添加到数据库并显示
     selectedEntity->addChild(markedObjectBag);
@@ -1695,13 +1696,35 @@ void MainWindow::doActionChangeMarkedObjectColor()
         return;
     }
 
-    markedObjectBag->setColor(QColorDialog::getColor(markedObjectBag->getColor(), this));
-
+    QColor selectedColor = QColorDialog::getColor(markedObjectBag->getColor(), this);
+    if (selectedColor.isValid())
+    {
+        markedObjectBag->setColor(selectedColor);
+    }
 }
 
 void MainWindow::doActionShowMarkedObjectProperties()
 {
+    //获取选中的物体
+    ccHObject::Container selectedEntities;
+    m_ccRoot->getSelectedEntities(selectedEntities, CC_TYPES::HIERARCHY_OBJECT);
+    if (selectedEntities.size() != 1) //必须先选中一个父节点
+    {
+        ccLog::Error(QString::fromAscii("请先选中一个物体！"));
+        return;
+    }
+    MarkedObjectBag *markedObjectBag = dynamic_cast<MarkedObjectBag*>(selectedEntities[0]);
+    if (!markedObjectBag)
+    {
+        ccLog::Error(QString::fromAscii("不能修改其他类型的物体的颜色！"));
+        return;
+    }
 
+    //显示数据库表
+    TableViewerDlg *tableViewerDlg = new TableViewerDlg(this);
+    tableViewerDlg->setWindowTitle(markedObjectBag->getName());
+    tableViewerDlg->setTableModel(markedObjectBag->getTableModel());
+    tableViewerDlg->show();
 }
 
 void MainWindow::doActionExportMarkedObjectAsShapefile()

@@ -38,7 +38,7 @@
 #include "mainwindow.h"
 #include "ccCommandLineParser.h"
 
-
+#include <QSqlDatabase>
 
 //! QApplication wrapper
 class qccApplication : public QApplication
@@ -83,6 +83,20 @@ int main(int argc, char *argv[]){
 	   splash->show();
 	   QApplication::processEvents();
 	}
+
+    //Added by yuqiang on 2015/11/08 初始化数据库
+    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+    db.setDatabaseName("marked_objects.db");
+    if (!db.open())
+    {
+        QMessageBox::critical(0, qApp->tr("Cannot open database"),
+            qApp->tr("Unable to establish a database connection.\n"
+            "This example needs SQLite support. Please read "
+            "the Qt SQL driver documentation for information how "
+            "to build it.\n\n"
+            "Click Cancel to exit."), QMessageBox::Cancel);
+        return false;
+    }
 
 	//global structures initialization
 	ccTimer::Init();

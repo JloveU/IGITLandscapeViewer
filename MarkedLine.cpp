@@ -291,3 +291,8 @@ bool MarkedLine::redo()
         return false;
     }
 }
+
+bool MarkedLine::isValid()
+{
+    return (m_points.size() > 1);
+}

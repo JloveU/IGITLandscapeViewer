@@ -70,8 +70,8 @@
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">bin\</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">bin\</OutDir>
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\plugins;.\libs\qCC_db;.\IGIT\include;$(QTDIR)\include\QtOpenGL;.\libs\qCC_glWindow;.\db_tree;.\libs\CCFbo\include;.\libs\Glew\include;.\libs\qcustomplot;.\IGIT\triangle;.\libs\qCC_io;.\libs\ThirdParty\Eigen\include;.\libs\TextureGeneration\include;.\libs\TextureGeneration\3rdParty\opencv2.4.9\include;.\libs\TextureGeneration\3rdParty\libQGLViewer-2.5.2\QGLViewer;.\libs\TextureGeneration\3rdParty\pthreads2;.\libs\TextureGeneration\3rdParty\libMRF\libMRF;.\libs\TextureGeneration\3rdParty\Boost\include;$(IncludePath)</IncludePath>
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\plugins;.\libs\qCC_db;.\IGIT\include;$(QTDIR)\include\QtOpenGL;.\libs\qCC_glWindow;.\db_tree;.\libs\CCFbo\include;.\libs\Glew\include;.\libs\qcustomplot;.\IGIT\triangle;.\libs\qCC_io;.\libs\ThirdParty\Eigen\include;.\libs\TextureGeneration\include;.\libs\TextureGeneration\3rdParty\opencv2.4.9\include;.\libs\TextureGeneration\3rdParty\libQGLViewer-2.5.2\QGLViewer;.\libs\TextureGeneration\3rdParty\pthreads2;.\libs\TextureGeneration\3rdParty\libMRF\libMRF;.\libs\TextureGeneration\3rdParty\Boost\include;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\plugins;.\libs\qCC_db;.\IGIT\include;$(QTDIR)\include\QtOpenGL;.\libs\qCC_glWindow;.\db_tree;.\libs\CCFbo\include;.\libs\Glew\include;.\libs\qcustomplot;.\IGIT\triangle;.\libs\qCC_io;.\libs\ThirdParty\Eigen\include;.\libs\TextureGeneration\include;.\libs\TextureGeneration\3rdParty\opencv2.4.9\include;.\libs\TextureGeneration\3rdParty\libQGLViewer-2.5.2\QGLViewer;.\libs\TextureGeneration\3rdParty\pthreads2;.\libs\TextureGeneration\3rdParty\libMRF\libMRF;.\libs\TextureGeneration\3rdParty\Boost\include;$(QTDIR)\include\QtSql;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\plugins;.\libs\qCC_db;.\IGIT\include;$(QTDIR)\include\QtOpenGL;.\libs\qCC_glWindow;.\db_tree;.\libs\CCFbo\include;.\libs\Glew\include;.\libs\qcustomplot;.\IGIT\triangle;.\libs\qCC_io;.\libs\ThirdParty\Eigen\include;.\libs\TextureGeneration\include;.\libs\TextureGeneration\3rdParty\opencv2.4.9\include;.\libs\TextureGeneration\3rdParty\libQGLViewer-2.5.2\QGLViewer;.\libs\TextureGeneration\3rdParty\pthreads2;.\libs\TextureGeneration\3rdParty\libMRF\libMRF;.\libs\TextureGeneration\3rdParty\Boost\include;$(QTDIR)\include\QtSql;$(IncludePath)</IncludePath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\lib;.\libs\TextureGeneration\lib;.\libs\TextureGeneration\3rdParty\opencv2.4.9\lib;.\libs\TextureGeneration\3rdParty\libQGLViewer-2.5.2\QGLViewer\debug;.\libs\TextureGeneration\3rdParty\libMRF\lib;.\libs\TextureGeneration\3rdParty\pthreads2\lib;.\libs\TextureGeneration\3rdParty\pcl1.6.0\lib;$(LibraryPath)</LibraryPath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\lib;.\libs\TextureGeneration\lib;.\libs\TextureGeneration\3rdParty\opencv2.4.9\lib;.\libs\TextureGeneration\3rdParty\libQGLViewer-2.5.2\QGLViewer\release;.\libs\TextureGeneration\3rdParty\libMRF\lib;.\libs\TextureGeneration\3rdParty\pthreads2\lib;.\libs\TextureGeneration\3rdParty\pcl1.6.0\lib;$(LibraryPath)</LibraryPath>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectName)_debug</TargetName>
@@ -108,7 +108,7 @@
       <OutputFile>$(OutDir)\$(ProjectName)_debug.exe</OutputFile>
       <AdditionalLibraryDirectories>$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>qtmaind.lib;glu32.lib;opengl32.lib;QtCored4.lib;QtGuid4.lib;QtXmld4.lib;Qt3Supportd4.lib;comdlg32.lib;QtOpenGLd4.lib;TextureGenerationd.lib;opencv_core249d.lib;opencv_flann249d.lib;opencv_highgui249d.lib;opencv_calib3d249d.lib;QGLViewerd2.lib;libMRFd.lib;pthreadVC2.lib;pcl_common_debug.lib;pcl_kdtree_debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>qtmaind.lib;glu32.lib;opengl32.lib;QtCored4.lib;QtGuid4.lib;QtXmld4.lib;Qt3Supportd4.lib;comdlg32.lib;QtOpenGLd4.lib;TextureGenerationd.lib;opencv_core249d.lib;opencv_flann249d.lib;opencv_highgui249d.lib;opencv_calib3d249d.lib;QGLViewerd2.lib;libMRFd.lib;pthreadVC2.lib;pcl_common_debug.lib;pcl_kdtree_debug.lib;QtSqld4.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
   </ItemDefinitionGroup>
@@ -147,7 +147,7 @@
       <OutputFile>$(OutDir)\$(ProjectName)_release.exe</OutputFile>
       <AdditionalLibraryDirectories>$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>false</GenerateDebugInformation>
-      <AdditionalDependencies>qtmain.lib;Qt3Support4.lib;comdlg32.lib;QtCore4.lib;QtGui4.lib;QtXml4.lib;QtOpenGL4.lib;glu32.lib;opengl32.lib;TextureGeneration.lib;opencv_core249.lib;opencv_flann249.lib;opencv_highgui249.lib;opencv_calib3d249.lib;QGLViewer2.lib;libMRF.lib;pthreadVC2.lib;pcl_common_release.lib;pcl_kdtree_release.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>qtmain.lib;Qt3Support4.lib;comdlg32.lib;QtCore4.lib;QtGui4.lib;QtXml4.lib;QtOpenGL4.lib;glu32.lib;opengl32.lib;TextureGeneration.lib;opencv_core249.lib;opencv_flann249.lib;opencv_highgui249.lib;opencv_calib3d249.lib;QGLViewer2.lib;libMRF.lib;pthreadVC2.lib;pcl_common_release.lib;pcl_kdtree_release.lib;QtSql4.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -311,6 +311,14 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_TableNewFieldDlg.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_TableViewerDlg.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="GeneratedFiles\qrc_mainwindow.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </PrecompiledHeader>
@@ -457,6 +465,14 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_TableNewFieldDlg.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_TableViewerDlg.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="IGIT\src\AutoSegmentationTools.cpp" />
     <ClCompile Include="IGIT\src\CCMiscTools.cpp" />
     <ClCompile Include="IGIT\src\CCShareable.cpp" />
@@ -600,6 +616,8 @@
     <ClCompile Include="SetMarkedObjectPropertyDlg.cpp" />
     <ClCompile Include="SetMarkedPointTreeRootNameDlg.cpp" />
     <ClCompile Include="ShortestPathComputer.cpp" />
+    <ClCompile Include="TableNewFieldDlg.cpp" />
+    <ClCompile Include="TableViewerDlg.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="mainwindow.h">
@@ -665,6 +683,42 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <CustomBuild Include="TableNewFieldDlg.h">
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing TableNewFieldDlg.h...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_DLL -DQT_CORE_LIB -DQT_GUI_LIB -DQT_XML_LIB -DQT_QT3SUPPORT_LIB -DQT3_SUPPORT "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtXml" "-I$(QTDIR)\include\Qt3Support"</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc%27ing TableNewFieldDlg.h...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_DLL -DQT_CORE_LIB -DQT_GUI_LIB -DQT_XML_LIB -DQT_QT3SUPPORT_LIB -DQT3_SUPPORT -DNOMINMAX -DUSE_GLEW -DGLEW_STATIC -DNO_TIMER -DTRILIBRARY -D_MBCS "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtXml" "-I$(QTDIR)\include\Qt3Support"</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing TableNewFieldDlg.h...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_DLL -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_XML_LIB -DQT_QT3SUPPORT_LIB -DQT3_SUPPORT "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtXml" "-I$(QTDIR)\include\Qt3Support"</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc%27ing TableNewFieldDlg.h...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_DLL -DQT_CORE_LIB -DQT_GUI_LIB -DQT_XML_LIB -DQT_QT3SUPPORT_LIB -DQT3_SUPPORT -DNOMINMAX -DUSE_GLEW -DGLEW_STATIC -DNO_TIMER -DTRILIBRARY -DNODEFAULTLIB -DDEBUG "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtXml" "-I$(QTDIR)\include\Qt3Support"</Command>
+    </CustomBuild>
+    <CustomBuild Include="TableViewerDlg.h">
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing TableViewerDlg.h...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_DLL -DQT_CORE_LIB -DQT_GUI_LIB -DQT_XML_LIB -DQT_QT3SUPPORT_LIB -DQT3_SUPPORT "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtXml" "-I$(QTDIR)\include\Qt3Support"</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc%27ing TableViewerDlg.h...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_DLL -DQT_CORE_LIB -DQT_GUI_LIB -DQT_XML_LIB -DQT_QT3SUPPORT_LIB -DQT3_SUPPORT -DNOMINMAX -DUSE_GLEW -DGLEW_STATIC -DNO_TIMER -DTRILIBRARY -D_MBCS "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtXml" "-I$(QTDIR)\include\Qt3Support"</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing TableViewerDlg.h...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_DLL -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_XML_LIB -DQT_QT3SUPPORT_LIB -DQT3_SUPPORT "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtXml" "-I$(QTDIR)\include\Qt3Support"</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc%27ing TableViewerDlg.h...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_DLL -DQT_CORE_LIB -DQT_GUI_LIB -DQT_XML_LIB -DQT_QT3SUPPORT_LIB -DQT3_SUPPORT -DNOMINMAX -DUSE_GLEW -DGLEW_STATIC -DNO_TIMER -DTRILIBRARY -DNODEFAULTLIB -DDEBUG "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtXml" "-I$(QTDIR)\include\Qt3Support"</Command>
+    </CustomBuild>
     <CustomBuild Include="BoostGraphInitThread.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing BoostGraphInitThread.h...</Message>
@@ -703,6 +757,8 @@
     </CustomBuild>
     <ClInclude Include="GeneratedFiles\ui_createMarkedObjectBagDlg.h" />
     <ClInclude Include="GeneratedFiles\ui_setMarkedObjectBagTypeDlg.h" />
+    <ClInclude Include="GeneratedFiles\ui_TableNewFieldDlg.h" />
+    <ClInclude Include="GeneratedFiles\ui_TableViewerDlg.h" />
     <ClInclude Include="MarkedArea.h" />
     <ClInclude Include="MarkedObjectBag.h" />
     <CustomBuild Include="SetMarkedObjectBagTypeDlg.h">
@@ -1978,6 +2034,44 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\uic.exe" -o ".\GeneratedFiles\ui_%(Filename).h" "%(FullPath)"</Command>
     </CustomBuild>
     <CustomBuild Include="ui_templates\createMarkedObjectBagDlg.ui">
+      <FileType>Document</FileType>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\uic.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Uic%27ing %(Identity)...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles\ui_%(Filename).h;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\uic.exe" -o ".\GeneratedFiles\ui_%(Filename).h" "%(FullPath)"</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\uic.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Uic%27ing %(Identity)...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles\ui_%(Filename).h;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\uic.exe" -o ".\GeneratedFiles\ui_%(Filename).h" "%(FullPath)"</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\bin\uic.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Uic%27ing %(Identity)...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles\ui_%(Filename).h;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\uic.exe" -o ".\GeneratedFiles\ui_%(Filename).h" "%(FullPath)"</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\uic.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Uic%27ing %(Identity)...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles\ui_%(Filename).h;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\uic.exe" -o ".\GeneratedFiles\ui_%(Filename).h" "%(FullPath)"</Command>
+    </CustomBuild>
+    <CustomBuild Include="ui_templates\TableViewerDlg.ui">
+      <FileType>Document</FileType>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\uic.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Uic%27ing %(Identity)...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles\ui_%(Filename).h;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\uic.exe" -o ".\GeneratedFiles\ui_%(Filename).h" "%(FullPath)"</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\uic.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Uic%27ing %(Identity)...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles\ui_%(Filename).h;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\uic.exe" -o ".\GeneratedFiles\ui_%(Filename).h" "%(FullPath)"</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\bin\uic.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Uic%27ing %(Identity)...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles\ui_%(Filename).h;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\uic.exe" -o ".\GeneratedFiles\ui_%(Filename).h" "%(FullPath)"</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\uic.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Uic%27ing %(Identity)...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles\ui_%(Filename).h;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\uic.exe" -o ".\GeneratedFiles\ui_%(Filename).h" "%(FullPath)"</Command>
+    </CustomBuild>
+    <CustomBuild Include="ui_templates\TableNewFieldDlg.ui">
       <FileType>Document</FileType>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\uic.exe;%(AdditionalInputs)</AdditionalInputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Uic%27ing %(Identity)...</Message>

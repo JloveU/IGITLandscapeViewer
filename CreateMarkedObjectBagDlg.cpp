@@ -116,7 +116,10 @@ void CreateMarkedObjectBagDlg::selectColor()
         return;
     }
     QColor color = QColorDialog::getColor(Qt::white, this);
-    setMarkedObjectBagColor(color);
+    if (color.isValid())
+    {
+        setMarkedObjectBagColor(color);
+    }
 }
 
 int CreateMarkedObjectBagDlg::exec()
